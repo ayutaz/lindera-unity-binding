@@ -47,3 +47,7 @@ crashlytics-build.properties
 
 # Rust build artifacts (for native plugins)
 target/
+
+# Claude Code temp files
+.claude/
+tmpclaude-*
