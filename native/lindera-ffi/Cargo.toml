@@ -1,0 +1,20 @@
+[package]
+name = "lindera-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "FFI bindings for Lindera Japanese morphological analyzer"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+lindera = { version = "2.0", features = ["embed-ipadic"] }
+
+[build-dependencies]
+csbindgen = "1.9"
+
+[profile.release]
+lto = true
+opt-level = "z"
+strip = true
