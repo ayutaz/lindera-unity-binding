@@ -32,20 +32,43 @@ LinderaをUnityで動作させるためのプロジェクト。Linderaは日本�
 | 文字列エンコーディング | UTF-8で統一（Rust/C#両方対応） |
 | エラーハンドリング | NULLポインタ返却でエラー表現 |
 
-## ディレクトリ構成
+## ディレクトリ構成（UPMパッケージ）
 
 ```
-Assets/
-├── Plugins/
-│   ├── x86_64/           # Windows 64-bit (.dll)
-│   ├── Android/
-│   │   └── libs/
-│   │       ├── arm64-v8a/    # Android ARM64 (.so)
-│   │       └── armeabi-v7a/  # Android ARMv7 (.so)
-│   └── iOS/              # iOS (.a 静的ライブラリ)
-├── Scripts/
-│   └── Lindera/          # C#ラッパークラス
-└── ...
+Packages/
+└── com.and.lindera/
+    ├── package.json
+    ├── README.md
+    ├── LICENSE
+    ├── CHANGELOG.md
+    ├── Runtime/
+    │   ├── Lindera.asmdef
+    │   ├── LinderaTokenizer.cs
+    │   ├── LinderaToken.cs
+    │   ├── LinderaException.cs
+    │   ├── NativeMethods.cs
+    │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
+    ├── Tests/
+    │   ├── Editor/
+    │   │   └── Lindera.Editor.Tests.asmdef
+    │   └── Runtime/
+    │       └── Lindera.Runtime.Tests.asmdef
+    └── Plugins/
+        ├── x86_64/           # Windows 64-bit (.dll)
+        ├── macOS/            # macOS Universal (.dylib)
+        ├── Linux/            # Linux x64 (.so)
+        ├── iOS/              # iOS (.a 静的ライブラリ)
+        └── Android/
+            └── libs/
+                ├── arm64-v8a/    # Android ARM64 (.so)
+                └── armeabi-v7a/  # Android ARMv7 (.so)
+
+native/
+└── lindera-ffi/          # Rust FFIライブラリ
+    ├── Cargo.toml
+    ├── build.rs          # csbindgen設定
+    └── src/
+        └── lib.rs
 ```
 
 ## ビルドコマンド

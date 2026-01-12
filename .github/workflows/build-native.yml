@@ -175,22 +175,23 @@ jobs:
 
       - name: Organize plugins
         run: |
-          mkdir -p plugins/x86_64
-          mkdir -p plugins/macOS
-          mkdir -p plugins/Linux
-          mkdir -p plugins/iOS
-          mkdir -p plugins/Android/libs/arm64-v8a
-          mkdir -p plugins/Android/libs/armeabi-v7a
+          PKG_DIR="Packages/com.and.lindera/Plugins"
+          mkdir -p "$PKG_DIR/x86_64"
+          mkdir -p "$PKG_DIR/macOS"
+          mkdir -p "$PKG_DIR/Linux"
+          mkdir -p "$PKG_DIR/iOS"
+          mkdir -p "$PKG_DIR/Android/libs/arm64-v8a"
+          mkdir -p "$PKG_DIR/Android/libs/armeabi-v7a"
 
-          cp artifacts/windows-x64/lindera_ffi.dll plugins/x86_64/
-          cp artifacts/macos-universal/liblindera_ffi.dylib plugins/macOS/
-          cp artifacts/linux-x64/liblindera_ffi.so plugins/Linux/
-          cp artifacts/ios-arm64/liblindera_ffi.a plugins/iOS/
-          cp artifacts/android-arm64/liblindera_ffi.so plugins/Android/libs/arm64-v8a/
-          cp artifacts/android-armv7/liblindera_ffi.so plugins/Android/libs/armeabi-v7a/
+          cp artifacts/windows-x64/lindera_ffi.dll "$PKG_DIR/x86_64/"
+          cp artifacts/macos-universal/liblindera_ffi.dylib "$PKG_DIR/macOS/"
+          cp artifacts/linux-x64/liblindera_ffi.so "$PKG_DIR/Linux/"
+          cp artifacts/ios-arm64/liblindera_ffi.a "$PKG_DIR/iOS/"
+          cp artifacts/android-arm64/liblindera_ffi.so "$PKG_DIR/Android/libs/arm64-v8a/"
+          cp artifacts/android-armv7/liblindera_ffi.so "$PKG_DIR/Android/libs/armeabi-v7a/"
 
       - name: Upload combined package
         uses: actions/upload-artifact@v4
         with:
           name: unity-plugins
-          path: plugins/
+          path: Packages/com.and.lindera/Plugins/

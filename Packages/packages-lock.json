@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.and.lindera": {
+      "version": "file:com.and.lindera",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.cysharp.unitask": "2.5.10"
+      }
+    },
     "com.cysharp.unitask": {
       "version": "2.5.10",
       "depth": 0,

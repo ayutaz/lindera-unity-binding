@@ -13,13 +13,13 @@ use lindera::mode::Mode;
 use lindera::segmenter::Segmenter;
 use lindera::tokenizer::Tokenizer;
 
-/// Opaque handle to the Lindera tokenizer
-pub struct LinderaTokenizer {
+/// Opaque handle to the Lindera tokenizer (FFI)
+pub struct LinderaTokenizerHandle {
     tokenizer: Tokenizer,
 }
 
-/// Result of tokenization containing tokens
-pub struct TokenResult {
+/// Result of tokenization containing tokens (FFI)
+pub struct LinderaTokenResultHandle {
     tokens: Vec<TokenData>,
 }
 
@@ -57,7 +57,7 @@ impl TokenData {
 /// - Pointer to tokenizer handle on success
 /// - NULL on failure
 #[no_mangle]
-pub extern "C" fn lindera_tokenizer_create() -> *mut LinderaTokenizer {
+pub extern "C" fn lindera_tokenizer_create() -> *mut LinderaTokenizerHandle {
     // Load embedded IPADIC dictionary
     let dictionary = match load_dictionary("embedded://ipadic") {
         Ok(dict) => dict,
@@ -70,7 +70,7 @@ pub extern "C" fn lindera_tokenizer_create() -> *mut LinderaTokenizer {
     // Create tokenizer
     let tokenizer = Tokenizer::new(segmenter);
 
-    let handle = Box::new(LinderaTokenizer { tokenizer });
+    let handle = Box::new(LinderaTokenizerHandle { tokenizer });
     Box::into_raw(handle)
 }
 
@@ -80,7 +80,7 @@ pub extern "C" fn lindera_tokenizer_create() -> *mut LinderaTokenizer {
 /// - `handle` must be a valid pointer returned by `lindera_tokenizer_create`
 /// - Must not be called twice on the same handle
 #[no_mangle]
-pub unsafe extern "C" fn lindera_tokenizer_destroy(handle: *mut LinderaTokenizer) {
+pub unsafe extern "C" fn lindera_tokenizer_destroy(handle: *mut LinderaTokenizerHandle) {
     if !handle.is_null() {
         let _ = Box::from_raw(handle);
     }
@@ -102,10 +102,10 @@ pub unsafe extern "C" fn lindera_tokenizer_destroy(handle: *mut LinderaTokenizer
 /// - `text` must be a valid pointer to `text_len` bytes
 #[no_mangle]
 pub unsafe extern "C" fn lindera_tokenize(
-    handle: *mut LinderaTokenizer,
+    handle: *mut LinderaTokenizerHandle,
     text: *const u8,
     text_len: i32,
-) -> *mut TokenResult {
+) -> *mut LinderaTokenResultHandle {
     if handle.is_null() || text.is_null() || text_len < 0 {
         return ptr::null_mut();
     }
@@ -144,7 +144,7 @@ pub unsafe extern "C" fn lindera_tokenize(
                 })
                 .collect();
 
-            let result = Box::new(TokenResult { tokens: token_data });
+            let result = Box::new(LinderaTokenResultHandle { tokens: token_data });
             Box::into_raw(result)
         }
         Err(_) => ptr::null_mut(),
@@ -159,7 +159,7 @@ pub unsafe extern "C" fn lindera_tokenize(
 /// # Returns
 /// - Number of tokens, or -1 on error
 #[no_mangle]
-pub unsafe extern "C" fn lindera_tokens_count(handle: *mut TokenResult) -> i32 {
+pub unsafe extern "C" fn lindera_tokens_count(handle: *mut LinderaTokenResultHandle) -> i32 {
     if handle.is_null() {
         return -1;
     }
@@ -180,7 +180,7 @@ pub unsafe extern "C" fn lindera_tokens_count(handle: *mut TokenResult) -> i32 {
 /// The returned pointer is valid until `lindera_tokens_destroy` is called
 #[no_mangle]
 pub unsafe extern "C" fn lindera_tokens_get(
-    handle: *mut TokenResult,
+    handle: *mut LinderaTokenResultHandle,
     index: i32,
 ) -> *const TokenData {
     if handle.is_null() || index < 0 {
@@ -203,7 +203,7 @@ pub unsafe extern "C" fn lindera_tokens_get(
 /// - `handle` must be a valid pointer returned by `lindera_tokenize`
 /// - Must not be called twice on the same handle
 #[no_mangle]
-pub unsafe extern "C" fn lindera_tokens_destroy(handle: *mut TokenResult) {
+pub unsafe extern "C" fn lindera_tokens_destroy(handle: *mut LinderaTokenResultHandle) {
     if !handle.is_null() {
         let mut result = Box::from_raw(handle);
         for token in &mut result.tokens {
