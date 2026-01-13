@@ -85,14 +85,48 @@ namespace Lindera
         }
 
         /// <summary>
+        /// 文字列の最大長（バッファオーバーラン防止用）
+        /// </summary>
+        private const int MaxStringLength = 1024 * 1024; // 1MB
+
+        /// <summary>
         /// UTF-8バイトポインタからC#文字列に変換
         /// </summary>
+        /// <param name="ptr">null終端されたUTF-8文字列へのポインタ</param>
+        /// <returns>変換された文字列。ptrがnullの場合はnull</returns>
+        /// <remarks>
+        /// 安全性のため、最大1MBまでの文字列のみ処理します。
+        /// null終端が見つからない場合は例外をスローします。
+        /// </remarks>
         public static string PtrToStringUTF8(byte* ptr)
         {
+            return PtrToStringUTF8(ptr, MaxStringLength);
+        }
+
+        /// <summary>
+        /// UTF-8バイトポインタからC#文字列に変換（最大長指定）
+        /// </summary>
+        /// <param name="ptr">null終端されたUTF-8文字列へのポインタ</param>
+        /// <param name="maxLength">読み取る最大バイト数</param>
+        /// <returns>変換された文字列。ptrがnullの場合はnull</returns>
+        /// <exception cref="InvalidOperationException">maxLength以内にnull終端が見つからない場合</exception>
+        public static string PtrToStringUTF8(byte* ptr, int maxLength)
+        {
             if (ptr == null) return null;
+            if (maxLength <= 0) return string.Empty;
 
             int length = 0;
-            while (ptr[length] != 0) length++;
+            while (length < maxLength && ptr[length] != 0)
+            {
+                length++;
+            }
+
+            // null終端が見つからなかった場合
+            if (length >= maxLength && ptr[length] != 0)
+            {
+                throw new InvalidOperationException(
+                    $"UTF-8 string exceeds maximum length of {maxLength} bytes or is not null-terminated.");
+            }
 
             if (length == 0) return string.Empty;
 
