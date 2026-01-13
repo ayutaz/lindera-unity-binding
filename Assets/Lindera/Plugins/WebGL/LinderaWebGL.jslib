@@ -539,20 +539,18 @@ var LinderaWebGLPlugin = {
             }
 
             // Convert tokens to JSON format for C#
-            // lindera-wasm returns array of token objects
+            // lindera-wasm-ipadic returns tokens with: surface, reading, partOfSpeech, byteStart, byteEnd, etc.
             var tokensArray = [];
             if (Array.isArray(tokens)) {
                 for (var i = 0; i < tokens.length; i++) {
                     var t = tokens[i];
-                    // Try different property names that lindera-wasm might use
-                    var tokenText = t.text || t.surface || t.token || '';
-                    var details = t.details || t.detail || [];
+                    // Map lindera-wasm properties to C# expected format
                     tokensArray.push({
-                        text: tokenText,
-                        byte_start: t.byte_start || t.byteStart || t.start || 0,
-                        byte_end: t.byte_end || t.byteEnd || t.end || 0,
-                        position: t.position || t.pos || 0,
-                        details: Array.isArray(details) ? details : []
+                        surface: t.surface || '',
+                        reading: t.reading || '',
+                        pos: t.partOfSpeech || '',
+                        byte_start: t.byteStart || 0,
+                        byte_end: t.byteEnd || 0
                     });
                 }
             }
