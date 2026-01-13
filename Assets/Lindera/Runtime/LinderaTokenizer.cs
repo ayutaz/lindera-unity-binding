@@ -8,6 +8,32 @@ namespace Lindera
     /// <summary>
     /// Lindera形態素解析エンジンのラッパークラス
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// このクラスはネイティブライブラリへのハンドルを保持するため、必ずDisposeを呼び出すか、
+    /// usingステートメントを使用してリソースを解放してください。
+    /// </para>
+    /// <para>
+    /// <strong>スレッドセーフティ:</strong> このクラスはスレッドセーフではありません。
+    /// 同一インスタンスを複数のスレッドから同時に使用しないでください。
+    /// マルチスレッド環境では、スレッドごとに別のインスタンスを作成するか、
+    /// 適切な同期機構を使用してください。
+    /// TokenizeAsyncメソッドはバックグラウンドスレッドで実行されるため、
+    /// 同一インスタンスで複数のTokenizeAsync呼び出しを同時に行わないでください。
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// using (var tokenizer = new LinderaTokenizer())
+    /// {
+    ///     var tokens = tokenizer.Tokenize("東京都");
+    ///     foreach (var token in tokens)
+    ///     {
+    ///         Debug.Log($"{token.Surface}: {token.Reading}");
+    ///     }
+    /// }
+    /// </code>
+    /// </example>
     public sealed class LinderaTokenizer : IDisposable
     {
         private IntPtr _handle;
@@ -130,6 +156,11 @@ namespace Lindera
             return sb.ToString();
         }
 
+        /// <summary>
+        /// ネイティブトークン結果からマネージド配列にトークンを抽出
+        /// </summary>
+        /// <param name="tokensHandle">トークン結果のネイティブハンドル</param>
+        /// <returns>抽出されたトークンの配列</returns>
         private unsafe LinderaToken[] ExtractTokens(IntPtr tokensHandle)
         {
             int count = NativeMethods.lindera_tokens_count(tokensHandle);
@@ -166,6 +197,10 @@ namespace Lindera
             return result;
         }
 
+        /// <summary>
+        /// 破棄済みの場合に例外をスロー
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">既に破棄されている場合</exception>
         private void ThrowIfDisposed()
         {
             if (_disposed)
@@ -174,6 +209,9 @@ namespace Lindera
             }
         }
 
+        /// <summary>
+        /// リソースを解放
+        /// </summary>
         public void Dispose()
         {
             if (_disposed) return;

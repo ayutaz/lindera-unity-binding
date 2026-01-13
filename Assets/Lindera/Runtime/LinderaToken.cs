@@ -45,6 +45,14 @@ namespace Lindera
         /// </summary>
         public string BaseForm => Details?.Length > 6 ? Details[6] : null;
 
+        /// <summary>
+        /// 新しいトークンを作成
+        /// </summary>
+        /// <param name="surface">表層形</param>
+        /// <param name="byteStart">バイト単位の開始位置</param>
+        /// <param name="byteEnd">バイト単位の終了位置</param>
+        /// <param name="position">トークン位置</param>
+        /// <param name="details">品詞情報等の詳細</param>
         public LinderaToken(string surface, uint byteStart, uint byteEnd, uint position, string[] details)
         {
             Surface = surface;
@@ -54,6 +62,10 @@ namespace Lindera
             Details = details;
         }
 
+        /// <summary>
+        /// トークンの文字列表現を取得
+        /// </summary>
+        /// <returns>表層形と品詞を含む文字列</returns>
         public override string ToString()
         {
             return $"{Surface} [{PartOfSpeech}]";
