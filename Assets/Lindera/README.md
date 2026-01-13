@@ -29,11 +29,18 @@ openupm add com.and.lindera
 - Unity 2021.3 or later
 - [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 or later
 
+### Sample Scene Requirements
+
+The sample scene requires additional packages (automatically installed with Unity):
+
+- TextMeshPro 3.0.9 or later
+- Input System 1.11.2 or later
+- uGUI 2.0.0 or later
+
 ## Usage
 
 ```csharp
 using Lindera;
-using Cysharp.Threading.Tasks;
 
 // Create tokenizer
 using var tokenizer = new LinderaTokenizer();
@@ -47,16 +54,58 @@ foreach (var token in tokens)
 }
 ```
 
+### Token Properties
+
+| Property | Description |
+|----------|-------------|
+| `Surface` | Surface form of the token |
+| `Reading` | Reading in katakana (from IPADIC) |
+| `PartOfSpeech` | Part-of-speech tag |
+| `ByteStart` | Start byte position in original text |
+| `ByteEnd` | End byte position in original text |
+
+### Async Tokenization
+
+```csharp
+using Lindera;
+using Cysharp.Threading.Tasks;
+
+async UniTaskVoid TokenizeAsync()
+{
+    using var tokenizer = new LinderaTokenizer();
+
+    var tokens = await tokenizer.TokenizeAsync("日本語テキスト");
+
+    foreach (var token in tokens)
+    {
+        Debug.Log(token.Surface);
+    }
+}
+```
+
 ## Sample Scene
 
 A sample scene is included in `Assets/Samples/Lindera/BasicUsage/`:
 
-1. Open `LinderaSample.unity`
-2. Run menu: **Lindera > Setup Sample Scene** (creates UGUI with TextMeshPro)
+1. Open `LinderaSample.unity` via menu: **Lindera > Open Sample Scene**
+2. Run menu: **Lindera > Setup Sample Scene** (creates UGUI with TextMeshPro and Japanese font)
 3. Enter Play Mode
 4. Enter Japanese text and click "Tokenize" to see results
 
-The sample uses UGUI with TextMeshPro for better text rendering.
+The sample uses:
+- UGUI with TextMeshPro for high-quality text rendering
+- Noto Sans CJK JP font for Japanese character support
+- Input System for modern input handling
+
+## Supported Platforms
+
+| Platform | Architecture | Status |
+|----------|-------------|--------|
+| Windows | x64 | Supported |
+| macOS | Universal (x64 + ARM64) | Planned |
+| Linux | x64 | Planned |
+| iOS | ARM64 | Planned |
+| Android | ARM64, ARMv7 | Planned |
 
 ## License
 

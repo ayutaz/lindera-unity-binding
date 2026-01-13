@@ -14,7 +14,9 @@ LinderaをUnityで動作させるためのプロジェクト。Linderaは日本�
 | Rust | 1.70+ | ネイティブライブラリ |
 | Lindera | 2.0+ | 日本語形態素解析エンジン |
 | csbindgen | 1.9+ | RustからC#バインディング自動生成 |
-| UniTask | - | Unity向け非同期処理 |
+| UniTask | 2.5.10 | Unity向け非同期処理 |
+| TextMeshPro | 3.0.9 | テキストレンダリング（サンプル用） |
+| Input System | 1.11.2 | 入力処理（サンプル用） |
 
 ## アーキテクチャ
 
@@ -32,7 +34,7 @@ LinderaをUnityで動作させるためのプロジェクト。Linderaは日本�
 | 文字列エンコーディング | UTF-8で統一（Rust/C#両方対応） |
 | エラーハンドリング | NULLポインタ返却でエラー表現 |
 
-## ディレクトリ構成（UPMパッケージ）
+## ディレクトリ構成
 
 ```
 Assets/
@@ -49,20 +51,29 @@ Assets/
 │   │   ├── NativeMethods.cs
 │   │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
 │   └── Plugins/
-│       ├── x86_64/           # Windows 64-bit (.dll)
-│       ├── macOS/            # macOS Universal (.dylib)
-│       ├── Linux/            # Linux x64 (.so)
-│       ├── iOS/              # iOS (.a 静的ライブラリ)
-│       └── Android/
-│           └── libs/
-│               ├── arm64-v8a/    # Android ARM64 (.so)
-│               └── armeabi-v7a/  # Android ARMv7 (.so)
+│       └── x86_64/           # Windows 64-bit (.dll)
 │
-└── Tests/                    # 開発用テスト（配布には含まれない）
-    ├── Editor/
-    │   └── Lindera.Tests.Editor.asmdef
-    └── Runtime/
-        └── Lindera.Tests.Runtime.asmdef
+├── Samples/
+│   └── Lindera/
+│       └── BasicUsage/       # サンプルシーン
+│           ├── LinderaSample.unity
+│           ├── Lindera.Samples.asmdef
+│           ├── Scripts/
+│           │   └── LinderaSampleUI.cs  # UGUI + TextMeshPro
+│           ├── Editor/
+│           │   ├── Lindera.Samples.Editor.asmdef
+│           │   └── LinderaSampleSetup.cs  # UIセットアップ
+│           └── Fonts/
+│               ├── NotoSansJP-Regular.ttf
+│               └── NotoSansJP-Regular SDF.asset
+│
+├── Tests/                    # 開発用テスト（配布には含まれない）
+│   ├── Editor/
+│   │   └── Lindera.Tests.Editor.asmdef
+│   └── Runtime/
+│       └── Lindera.Tests.Runtime.asmdef
+│
+└── TextMesh Pro/             # TMP Essential Resources
 
 Packages/
 └── manifest.json
@@ -74,6 +85,14 @@ native/
     └── src/
         └── lib.rs
 ```
+
+## サンプルシーンの使用方法
+
+1. メニュー: **Lindera > Open Sample Scene** でシーンを開く
+2. メニュー: **Lindera > Setup Sample Scene** でUIを自動生成
+   - Canvas、EventSystem、TextMeshPro UIが作成される
+   - Noto Sans CJK JP フォントが自動適用される
+3. Play Modeで動作確認
 
 ## UPMインストール方法
 
@@ -131,6 +150,8 @@ cargo build --release
 - ネイティブライブラリのメモリ解放を忘れないこと（IDisposableパターン推奨）
 - iOSでは`[DllImport("__Internal")]`を使用（静的リンク）
 - csbindgenの`csharp_use_function_pointer(false)`でUnity互換性確保
+- サンプルUIはUGUI + TextMeshProを使用（OnGUIは非推奨）
+- Input System Packageを使用（旧InputManagerは非対応）
 
 ## 関連リソース
 

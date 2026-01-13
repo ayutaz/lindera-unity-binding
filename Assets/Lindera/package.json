@@ -1,6 +1,6 @@
 {
   "name": "com.and.lindera",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Lindera",
   "description": "Japanese morphological analyzer for Unity. Provides tokenization capabilities using Lindera (Rust-based) via FFI bindings.",
   "unity": "2021.3",
