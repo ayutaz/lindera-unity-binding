@@ -21,7 +21,7 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 ### Via OpenUPM (Coming Soon)
 
 ```bash
-openupm add com.and.lindera
+openupm add com.ayutaz.lindera-unity-binding
 ```
 
 ## Requirements
