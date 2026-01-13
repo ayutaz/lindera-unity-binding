@@ -3,6 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Cysharp.Threading.Tasks;
 using LinderaUnityBinding;
 
 namespace LinderaUnityBinding.Samples
@@ -13,6 +14,7 @@ namespace LinderaUnityBinding.Samples
     /// <remarks>
     /// このクラスはLinderaTokenizerの基本的な使用方法を示します。
     /// 入力フィールドにテキストを入力し、ボタンをクリックすると形態素解析結果が表示されます。
+    /// WebGLとネイティブプラットフォームの両方に対応しています。
     /// </remarks>
     public class LinderaSampleUI : MonoBehaviour
     {
@@ -24,40 +26,22 @@ namespace LinderaUnityBinding.Samples
         [Header("Settings")]
         [SerializeField] private string defaultText = "東京都に住んでいます。今日はいい天気ですね。";
 
-        private LinderaTokenizer _tokenizer;
+        private ILinderaTokenizer _tokenizer;
         private bool _isInitialized;
+        private bool _isInitializing;
 
         /// <summary>
-        /// コンポーネントの初期化時にトークナイザーを作成
+        /// コンポーネントの初期化
         /// </summary>
         private void Awake()
         {
-            try
-            {
-                _tokenizer = new LinderaTokenizer();
-                _isInitialized = _tokenizer.IsValid;
-
-                if (!_isInitialized)
-                {
-                    Debug.LogError("[LinderaSampleUI] Failed to initialize tokenizer: tokenizer is not valid");
-                }
-            }
-            catch (DllNotFoundException ex)
-            {
-                Debug.LogError($"[LinderaSampleUI] Native library not found: {ex.Message}");
-                _isInitialized = false;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[LinderaSampleUI] Failed to initialize tokenizer: {ex.Message}");
-                _isInitialized = false;
-            }
+            // 初期化は非同期で行うため、Startで実行
         }
 
         /// <summary>
-        /// UI要素の初期設定とイベントリスナーの登録
+        /// UI要素の初期設定とトークナイザーの非同期初期化
         /// </summary>
-        private void Start()
+        private async void Start()
         {
             if (inputField != null)
             {
@@ -67,15 +51,72 @@ namespace LinderaUnityBinding.Samples
             if (tokenizeButton != null)
             {
                 tokenizeButton.onClick.AddListener(OnTokenizeButtonClicked);
+                tokenizeButton.interactable = false; // 初期化完了まで無効化
             }
 
-            if (_isInitialized)
+            SetResultText("初期化中...");
+
+            await InitializeTokenizerAsync();
+        }
+
+        /// <summary>
+        /// トークナイザーを非同期で初期化
+        /// </summary>
+        private async UniTask InitializeTokenizerAsync()
+        {
+            if (_isInitializing || _isInitialized)
             {
-                Tokenize(defaultText);
+                return;
             }
-            else
+
+            _isInitializing = true;
+
+            try
             {
-                SetResultText("エラー: トークナイザーの初期化に失敗しました。\nネイティブライブラリが正しく配置されているか確認してください。");
+                // プラットフォームに応じたトークナイザーを非同期で作成
+                // WebGLの場合はWASMの初期化が行われる
+                _tokenizer = await LinderaTokenizerFactory.CreateAsync();
+                _isInitialized = _tokenizer.IsValid;
+
+                if (_isInitialized)
+                {
+                    Debug.Log($"[LinderaSampleUI] Tokenizer initialized successfully (WebGL: {LinderaTokenizerFactory.IsWebGL})");
+
+                    if (tokenizeButton != null)
+                    {
+                        tokenizeButton.interactable = true;
+                    }
+
+                    // デフォルトテキストでトークナイズ実行
+                    Tokenize(defaultText);
+                }
+                else
+                {
+                    Debug.LogError("[LinderaSampleUI] Failed to initialize tokenizer: tokenizer is not valid");
+                    SetResultText("エラー: トークナイザーの初期化に失敗しました。");
+                }
+            }
+            catch (DllNotFoundException ex)
+            {
+                Debug.LogError($"[LinderaSampleUI] Native library not found: {ex.Message}");
+                SetResultText("エラー: ネイティブライブラリが見つかりません。\n" + ex.Message);
+                _isInitialized = false;
+            }
+            catch (LinderaException ex)
+            {
+                Debug.LogError($"[LinderaSampleUI] Lindera error: {ex.Message}");
+                SetResultText("エラー: Linderaの初期化に失敗しました。\n" + ex.Message);
+                _isInitialized = false;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[LinderaSampleUI] Failed to initialize tokenizer: {ex.Message}");
+                SetResultText("エラー: トークナイザーの初期化に失敗しました。\n" + ex.Message);
+                _isInitialized = false;
+            }
+            finally
+            {
+                _isInitializing = false;
             }
         }
 
@@ -128,6 +169,7 @@ namespace LinderaUnityBinding.Samples
 
                 sb.AppendLine($"入力: {text}");
                 sb.AppendLine($"トークン数: {tokens.Length}");
+                sb.AppendLine($"プラットフォーム: {(LinderaTokenizerFactory.IsWebGL ? "WebGL (WASM)" : "Native")}");
                 sb.AppendLine("---");
 
                 foreach (var token in tokens)
