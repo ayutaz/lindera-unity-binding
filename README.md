@@ -8,7 +8,7 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 
 ## デモ動画
 
-[![Lindera Unity Binding Demo](https://img.youtube.com/vi/9yte6Px-Qc4/maxresdefault.jpg)](https://youtu.be/9yte6Px-Qc4)
+[![Lindera Unity Binding Demo](https://img.youtube.com/vi/9yte6Px-Qc4/hqdefault.jpg)](https://youtu.be/9yte6Px-Qc4)
 
 ## 機能
 
