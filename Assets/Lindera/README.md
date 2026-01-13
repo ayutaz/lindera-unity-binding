@@ -99,13 +99,84 @@ The sample uses:
 
 ## Supported Platforms
 
-| Platform | Architecture | Status |
-|----------|-------------|--------|
-| Windows | x64 | Supported |
-| macOS | Universal (x64 + ARM64) | Planned |
-| Linux | x64 | Planned |
-| iOS | ARM64 | Planned |
-| Android | ARM64, ARMv7 | Planned |
+| Platform | Architecture | Library |
+|----------|-------------|---------|
+| Windows | x64 | `lindera_ffi.dll` |
+| macOS | Universal (x64 + ARM64) | `liblindera_ffi.dylib` |
+| Linux | x64 | `liblindera_ffi.so` |
+| iOS | ARM64 | `liblindera_ffi.a` (static) |
+| Android | ARM64 | `liblindera_ffi.so` |
+| Android | ARMv7 | `liblindera_ffi.so` |
+
+## Building Native Libraries
+
+Native libraries are automatically built by CI/CD when releasing. For local development, you can build them manually:
+
+### Prerequisites
+
+- Rust 1.70 or later (`rustup` recommended)
+
+### Windows (x64)
+
+```bash
+cd native/lindera-ffi
+cargo build --release --target x86_64-pc-windows-msvc
+# Output: target/x86_64-pc-windows-msvc/release/lindera_ffi.dll
+```
+
+### macOS (Universal Binary)
+
+```bash
+cd native/lindera-ffi
+rustup target add x86_64-apple-darwin aarch64-apple-darwin
+cargo build --release --target x86_64-apple-darwin
+cargo build --release --target aarch64-apple-darwin
+lipo -create \
+  target/x86_64-apple-darwin/release/liblindera_ffi.dylib \
+  target/aarch64-apple-darwin/release/liblindera_ffi.dylib \
+  -output liblindera_ffi.dylib
+```
+
+### Linux (x64)
+
+```bash
+cd native/lindera-ffi
+cargo build --release --target x86_64-unknown-linux-gnu
+# Output: target/x86_64-unknown-linux-gnu/release/liblindera_ffi.so
+```
+
+### iOS (ARM64)
+
+```bash
+cd native/lindera-ffi
+rustup target add aarch64-apple-ios
+cargo build --release --target aarch64-apple-ios
+# Output: target/aarch64-apple-ios/release/liblindera_ffi.a
+```
+
+### Android (ARM64/ARMv7)
+
+Requires Android NDK. See `.github/workflows/build-native.yml` for detailed setup.
+
+```bash
+cd native/lindera-ffi
+rustup target add aarch64-linux-android armv7-linux-androideabi
+cargo build --release --target aarch64-linux-android
+cargo build --release --target armv7-linux-androideabi
+```
+
+### Copying Built Libraries
+
+After building, copy the libraries to the appropriate Plugins directory:
+
+| Platform | Source | Destination |
+|----------|--------|-------------|
+| Windows | `target/x86_64-pc-windows-msvc/release/lindera_ffi.dll` | `Plugins/x86_64/` |
+| macOS | `liblindera_ffi.dylib` (universal) | `Plugins/macOS/` |
+| Linux | `target/x86_64-unknown-linux-gnu/release/liblindera_ffi.so` | `Plugins/Linux/` |
+| iOS | `target/aarch64-apple-ios/release/liblindera_ffi.a` | `Plugins/iOS/` |
+| Android ARM64 | `target/aarch64-linux-android/release/liblindera_ffi.so` | `Plugins/Android/libs/arm64-v8a/` |
+| Android ARMv7 | `target/armv7-linux-androideabi/release/liblindera_ffi.so` | `Plugins/Android/libs/armeabi-v7a/` |
 
 ## License
 
