@@ -21,6 +21,7 @@ jobs:
   test:
     name: Run Unity Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,6 +60,7 @@ jobs:
         with:
           testMode: PlayMode
           artifactsPath: TestResults/PlayMode
+          customParameters: -testPlatform PlayMode
 
       # Upload test results
       - name: Upload EditMode Test Results
@@ -74,4 +76,4 @@ jobs:
         with:
           name: playmode-test-results
           path: TestResults/PlayMode
-          if-no-files-found: ignore
+          if-no-files-found: warn

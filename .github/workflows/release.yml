@@ -215,16 +215,40 @@ jobs:
         with:
           path: artifacts
 
+      - name: Validate required files
+        run: |
+          echo "Validating required package files..."
+          required_files=(
+            "Assets/Lindera/package.json"
+            "Assets/Lindera/README.md"
+            "Assets/Lindera/CHANGELOG.md"
+            "Assets/Lindera/LICENSE"
+          )
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Required file not found: $file"
+              exit 1
+            fi
+          done
+          echo "All required files present."
+
       - name: Prepare UPM package
         run: |
           PKG_DIR="package"
 
+          # Create package directory first
+          mkdir -p "$PKG_DIR"
+
           # Copy package contents
-          cp -r Assets/Lindera/* "$PKG_DIR/" 2>/dev/null || mkdir -p "$PKG_DIR"
-          cp Assets/Lindera/package.json "$PKG_DIR/"
-          cp Assets/Lindera/README.md "$PKG_DIR/"
-          cp Assets/Lindera/CHANGELOG.md "$PKG_DIR/"
-          cp Assets/Lindera/LICENSE "$PKG_DIR/" 2>/dev/null || true
+          cp -r Assets/Lindera/* "$PKG_DIR/"
+
+          # Verify essential files were copied
+          for file in package.json README.md CHANGELOG.md LICENSE; do
+            if [ ! -f "$PKG_DIR/$file" ]; then
+              echo "ERROR: Failed to copy $file to package"
+              exit 1
+            fi
+          done
 
           # Create plugin directories
           mkdir -p "$PKG_DIR/Plugins/x86_64"
@@ -241,6 +265,8 @@ jobs:
           cp artifacts/ios-arm64/liblindera_ffi.a "$PKG_DIR/Plugins/iOS/"
           cp artifacts/android-arm64/liblindera_ffi.so "$PKG_DIR/Plugins/Android/libs/arm64-v8a/"
           cp artifacts/android-armv7/liblindera_ffi.so "$PKG_DIR/Plugins/Android/libs/armeabi-v7a/"
+
+          echo "UPM package prepared successfully."
 
       - name: Create release archive
         run: |
