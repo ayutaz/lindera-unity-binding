@@ -1,6 +1,6 @@
 using System;
 
-namespace Lindera
+namespace LinderaUnityBinding
 {
     /// <summary>
     /// Lindera操作で発生する例外

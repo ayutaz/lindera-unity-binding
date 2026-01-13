@@ -1,4 +1,82 @@
-# Lindera for Unity
+# Lindera Unity Binding
+
+[English](#english) | 日本語
+
+LinderaをUnityで使用するための日本語形態素解析ライブラリです。Rust製のLinderaをFFIバインディング経由で利用します。
+
+## 機能
+
+- 日本語テキストのトークナイズ（形態素解析）
+- IPADIC辞書による読み仮名（ふりがな）取得
+- 品詞タグ付け
+- マルチプラットフォーム対応（Windows, macOS, Linux, iOS, Android）
+- UniTaskによる非同期処理
+
+## インストール
+
+### Unity Package Manager (Git URL) 経由
+
+1. Window > Package Manager を開く
+2. 「+」ボタンをクリックし、「Add package from git URL...」を選択
+3. 以下を入力: `https://github.com/ayutaz/lindera-unity-binding.git?path=Assets/Lindera`
+
+## 要件
+
+- Unity 2021.3 以降
+- [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 以降
+
+## 使い方
+
+```csharp
+using LinderaUnityBinding;
+
+// トークナイザーを作成
+using var tokenizer = new LinderaTokenizer();
+
+// テキストをトークナイズ
+var tokens = tokenizer.Tokenize("東京都に住んでいます");
+
+foreach (var token in tokens)
+{
+    Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
+}
+```
+
+### 非同期トークナイズ
+
+```csharp
+using LinderaUnityBinding;
+using Cysharp.Threading.Tasks;
+
+async UniTaskVoid TokenizeAsync()
+{
+    using var tokenizer = new LinderaTokenizer();
+    var tokens = await tokenizer.TokenizeAsync("日本語テキスト");
+    foreach (var token in tokens)
+    {
+        Debug.Log(token.Surface);
+    }
+}
+```
+
+## 重要な注意事項
+
+### スレッドセーフティ
+
+`LinderaTokenizer` は**スレッドセーフではありません**。マルチスレッド環境では、スレッドごとに別のインスタンスを作成するか、適切な同期機構を使用してください。
+
+### リソース管理
+
+使用後は必ず `using` ステートメントでDisposeしてください。
+
+## ライセンス
+
+Apache-2.0
+
+---
+
+<a name="english"></a>
+# English
 
 Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bindings.
 
@@ -18,29 +96,15 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 2. Click "+" button and select "Add package from git URL..."
 3. Enter: `https://github.com/ayutaz/lindera-unity-binding.git?path=Assets/Lindera`
 
-### Via OpenUPM (Coming Soon)
-
-```bash
-openupm add com.ayutaz.lindera-unity-binding
-```
-
 ## Requirements
 
 - Unity 2021.3 or later
 - [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 or later
 
-### Sample Scene Requirements
-
-The sample scene requires additional packages (automatically installed with Unity):
-
-- TextMeshPro 3.0.9 or later
-- Input System 1.11.2 or later
-- uGUI 2.0.0 or later
-
 ## Usage
 
 ```csharp
-using Lindera;
+using LinderaUnityBinding;
 
 // Create tokenizer
 using var tokenizer = new LinderaTokenizer();
@@ -54,162 +118,15 @@ foreach (var token in tokens)
 }
 ```
 
-### Token Properties
-
-| Property | Description |
-|----------|-------------|
-| `Surface` | Surface form of the token |
-| `Reading` | Reading in katakana (from IPADIC) |
-| `PartOfSpeech` | Part-of-speech tag |
-| `ByteStart` | Start byte position in original text |
-| `ByteEnd` | End byte position in original text |
-
-### Async Tokenization
-
-```csharp
-using Lindera;
-using Cysharp.Threading.Tasks;
-
-async UniTaskVoid TokenizeAsync()
-{
-    using var tokenizer = new LinderaTokenizer();
-
-    var tokens = await tokenizer.TokenizeAsync("日本語テキスト");
-
-    foreach (var token in tokens)
-    {
-        Debug.Log(token.Surface);
-    }
-}
-```
-
 ## Important Notes
 
 ### Thread Safety
 
-`LinderaTokenizer` is **NOT thread-safe**. Do not use the same instance from multiple threads simultaneously. For multi-threaded usage:
-
-- Create a separate `LinderaTokenizer` instance for each thread, or
-- Use proper synchronization mechanisms
-
-When using `TokenizeAsync`, do not call it multiple times concurrently on the same instance.
+`LinderaTokenizer` is **NOT thread-safe**. In multi-threaded environments, create a separate instance for each thread or use proper synchronization.
 
 ### Resource Management
 
-Always dispose the tokenizer after use. The recommended pattern is using `using` statements:
-
-```csharp
-using (var tokenizer = new LinderaTokenizer())
-{
-    var tokens = tokenizer.Tokenize("テキスト");
-    // Process tokens
-} // Tokenizer is automatically disposed here
-```
-
-### Error Handling
-
-The tokenizer may throw the following exceptions:
-
-| Exception | Description |
-|-----------|-------------|
-| `LinderaException` | Native library operation failed |
-| `ObjectDisposedException` | Tokenizer was already disposed |
-| `DllNotFoundException` | Native library not found (check Plugins directory) |
-
-## Sample Scene
-
-A sample scene is included in `Assets/Samples/Lindera/BasicUsage/`:
-
-1. Open `LinderaSample.unity` via menu: **Lindera > Open Sample Scene**
-2. Run menu: **Lindera > Setup Sample Scene** (creates UGUI with TextMeshPro and Japanese font)
-3. Enter Play Mode
-4. Enter Japanese text and click "Tokenize" to see results
-
-The sample uses:
-- UGUI with TextMeshPro for high-quality text rendering
-- Noto Sans CJK JP font for Japanese character support
-- Input System for modern input handling
-
-## Supported Platforms
-
-| Platform | Architecture | Library |
-|----------|-------------|---------|
-| Windows | x64 | `lindera_ffi.dll` |
-| macOS | Universal (x64 + ARM64) | `liblindera_ffi.dylib` |
-| Linux | x64 | `liblindera_ffi.so` |
-| iOS | ARM64 | `liblindera_ffi.a` (static) |
-| Android | ARM64 | `liblindera_ffi.so` |
-| Android | ARMv7 | `liblindera_ffi.so` |
-
-## Building Native Libraries
-
-Native libraries are automatically built by CI/CD when releasing. For local development, you can build them manually:
-
-### Prerequisites
-
-- Rust 1.70 or later (`rustup` recommended)
-
-### Windows (x64)
-
-```bash
-cd native/lindera-ffi
-cargo build --release --target x86_64-pc-windows-msvc
-# Output: target/x86_64-pc-windows-msvc/release/lindera_ffi.dll
-```
-
-### macOS (Universal Binary)
-
-```bash
-cd native/lindera-ffi
-rustup target add x86_64-apple-darwin aarch64-apple-darwin
-cargo build --release --target x86_64-apple-darwin
-cargo build --release --target aarch64-apple-darwin
-lipo -create \
-  target/x86_64-apple-darwin/release/liblindera_ffi.dylib \
-  target/aarch64-apple-darwin/release/liblindera_ffi.dylib \
-  -output liblindera_ffi.dylib
-```
-
-### Linux (x64)
-
-```bash
-cd native/lindera-ffi
-cargo build --release --target x86_64-unknown-linux-gnu
-# Output: target/x86_64-unknown-linux-gnu/release/liblindera_ffi.so
-```
-
-### iOS (ARM64)
-
-```bash
-cd native/lindera-ffi
-rustup target add aarch64-apple-ios
-cargo build --release --target aarch64-apple-ios
-# Output: target/aarch64-apple-ios/release/liblindera_ffi.a
-```
-
-### Android (ARM64/ARMv7)
-
-Requires Android NDK. See `.github/workflows/build-native.yml` for detailed setup.
-
-```bash
-cd native/lindera-ffi
-rustup target add aarch64-linux-android armv7-linux-androideabi
-cargo build --release --target aarch64-linux-android
-cargo build --release --target armv7-linux-androideabi
-```
-
-### Copying Built Libraries
-
-After building, copy the libraries to the appropriate Plugins directory:
-
-| Platform | Source | Destination |
-|----------|--------|-------------|
-| Windows | `target/x86_64-pc-windows-msvc/release/lindera_ffi.dll` | `Plugins/x86_64/` |
-| macOS | `liblindera_ffi.dylib` (universal) | `Plugins/macOS/` |
-| Linux | `target/x86_64-unknown-linux-gnu/release/liblindera_ffi.so` | `Plugins/Linux/` |
-| iOS | `target/aarch64-apple-ios/release/liblindera_ffi.a` | `Plugins/iOS/` |
-| Android ARM64 | `target/aarch64-linux-android/release/liblindera_ffi.so` | `Plugins/Android/libs/arm64-v8a/` |
-| Android ARMv7 | `target/armv7-linux-androideabi/release/liblindera_ffi.so` | `Plugins/Android/libs/armeabi-v7a/` |
+Always dispose using `using` statements.
 
 ## License
 

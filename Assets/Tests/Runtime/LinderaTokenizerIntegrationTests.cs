@@ -8,7 +8,9 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Lindera.Tests
+using LinderaUnityBinding;
+
+namespace LinderaUnityBinding.Tests
 {
     /// <summary>
     /// LinderaTokenizerの統合テスト（ネイティブライブラリが必要）

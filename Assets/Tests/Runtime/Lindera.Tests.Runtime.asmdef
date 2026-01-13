@@ -1,8 +1,8 @@
 {
-    "name": "Lindera.Tests.Runtime",
-    "rootNamespace": "Lindera.Tests",
+    "name": "LinderaUnityBinding.Tests.Runtime",
+    "rootNamespace": "LinderaUnityBinding.Tests",
     "references": [
-        "Lindera",
+        "LinderaUnityBinding",
         "UniTask",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

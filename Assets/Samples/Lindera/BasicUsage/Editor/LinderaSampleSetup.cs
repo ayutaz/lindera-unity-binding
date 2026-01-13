@@ -6,7 +6,9 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using TMPro;
 
-namespace Lindera.Samples.Editor
+using LinderaUnityBinding.Samples;
+
+namespace LinderaUnityBinding.Samples.Editor
 {
     public static class LinderaSampleSetup
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace Lindera
+namespace LinderaUnityBinding
 {
     /// <summary>
     /// Linderaネイティブライブラリへのバインディング

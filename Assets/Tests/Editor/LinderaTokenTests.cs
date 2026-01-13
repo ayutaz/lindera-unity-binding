@@ -1,6 +1,8 @@
 using NUnit.Framework;
 
-namespace Lindera.Tests
+using LinderaUnityBinding;
+
+namespace LinderaUnityBinding.Tests
 {
     /// <summary>
     /// LinderaTokenのユニットテスト
