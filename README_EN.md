@@ -6,6 +6,10 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 
 **[WebGL Demo](https://ayutaz.github.io/lindera-unity-binding/)**
 
+## Demo Video
+
+[![Lindera Unity Binding Demo](https://img.youtube.com/vi/9yte6Px-Qc4/hqdefault.jpg)](https://youtu.be/9yte6Px-Qc4)
+
 ## Features
 
 - Japanese text tokenization
