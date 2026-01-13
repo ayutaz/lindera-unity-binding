@@ -16,7 +16,7 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 
 1. Open Window > Package Manager
 2. Click "+" button and select "Add package from git URL..."
-3. Enter: `https://github.com/ayutaz/lindera-unity-binding.git?path=Packages/com.and.lindera`
+3. Enter: `https://github.com/ayutaz/lindera-unity-binding.git?path=Assets/Lindera`
 
 ### Via OpenUPM (Coming Soon)
 

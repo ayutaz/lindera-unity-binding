@@ -7,6 +7,6 @@ fn main() {
         .csharp_class_accessibility("internal")
         .csharp_use_function_pointer(false) // Unity compatibility
         .csharp_dll_name_if("UNITY_IOS && !UNITY_EDITOR", "__Internal")
-        .generate_csharp_file("../../Packages/com.and.lindera/Runtime/NativeMethodsGenerated.cs")
+        .generate_csharp_file("../../Assets/Lindera/Runtime/NativeMethodsGenerated.cs")
         .unwrap();
 }

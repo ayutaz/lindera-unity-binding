@@ -35,36 +35,37 @@ LinderaをUnityで動作させるためのプロジェクト。Linderaは日本�
 ## ディレクトリ構成（UPMパッケージ）
 
 ```
-Packages/
-├── manifest.json             # ローカルパッケージ参照
-└── com.and.lindera/          # UPMパッケージ本体
-    ├── package.json
-    ├── README.md
-    ├── LICENSE
-    ├── CHANGELOG.md
-    ├── Runtime/
-    │   ├── Lindera.asmdef
-    │   ├── LinderaTokenizer.cs
-    │   ├── LinderaToken.cs
-    │   ├── LinderaException.cs
-    │   ├── NativeMethods.cs
-    │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
-    └── Plugins/
-        ├── x86_64/           # Windows 64-bit (.dll)
-        ├── macOS/            # macOS Universal (.dylib)
-        ├── Linux/            # Linux x64 (.so)
-        ├── iOS/              # iOS (.a 静的ライブラリ)
-        └── Android/
-            └── libs/
-                ├── arm64-v8a/    # Android ARM64 (.so)
-                └── armeabi-v7a/  # Android ARMv7 (.so)
-
 Assets/
-└── Tests/                    # 開発用テスト（パッケージ配布には含まれない）
+├── Lindera/                  # UPMパッケージ本体（配布対象）
+│   ├── package.json
+│   ├── README.md
+│   ├── LICENSE
+│   ├── CHANGELOG.md
+│   ├── Runtime/
+│   │   ├── Lindera.asmdef
+│   │   ├── LinderaTokenizer.cs
+│   │   ├── LinderaToken.cs
+│   │   ├── LinderaException.cs
+│   │   ├── NativeMethods.cs
+│   │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
+│   └── Plugins/
+│       ├── x86_64/           # Windows 64-bit (.dll)
+│       ├── macOS/            # macOS Universal (.dylib)
+│       ├── Linux/            # Linux x64 (.so)
+│       ├── iOS/              # iOS (.a 静的ライブラリ)
+│       └── Android/
+│           └── libs/
+│               ├── arm64-v8a/    # Android ARM64 (.so)
+│               └── armeabi-v7a/  # Android ARMv7 (.so)
+│
+└── Tests/                    # 開発用テスト（配布には含まれない）
     ├── Editor/
     │   └── Lindera.Tests.Editor.asmdef
     └── Runtime/
         └── Lindera.Tests.Runtime.asmdef
+
+Packages/
+└── manifest.json
 
 native/
 └── lindera-ffi/              # Rust FFIライブラリ
@@ -77,7 +78,7 @@ native/
 ## UPMインストール方法
 
 ```
-https://github.com/ayutaz/lindera-unity-binding.git?path=Packages/com.and.lindera
+https://github.com/ayutaz/lindera-unity-binding.git?path=Assets/Lindera
 ```
 
 ## ビルドコマンド
