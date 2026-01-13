@@ -4,6 +4,8 @@
 
 LinderaをUnityで使用するための日本語形態素解析ライブラリです。Rust製のLinderaをFFIバインディング経由で利用します。
 
+**[WebGLデモ](https://ayutaz.github.io/lindera-unity-binding/)**
+
 ## 機能
 
 - 日本語テキストのトークナイズ（形態素解析）
@@ -123,6 +125,8 @@ Apache-2.0
 # English
 
 Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bindings.
+
+**[WebGL Demo](https://ayutaz.github.io/lindera-unity-binding/)**
 
 ## Features
 
