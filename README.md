@@ -6,6 +6,10 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 
 **[WebGLデモ](https://ayutaz.github.io/lindera-unity-binding/)**
 
+## デモ動画
+
+[![Lindera Unity Binding Demo](https://img.youtube.com/vi/9yte6Px-Qc4/hqdefault.jpg)](https://youtu.be/9yte6Px-Qc4)
+
 ## 機能
 
 - 日本語テキストのトークナイズ（形態素解析）
