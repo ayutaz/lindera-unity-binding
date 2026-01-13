@@ -345,15 +345,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Save package directory to temp location before switching branches
+          cp -r package /tmp/upm-package
+
           # Create or update upm branch
           git checkout -B upm
 
           # Remove all files except .git
           find . -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
 
-          # Copy package contents to root
-          cp -r package/* .
-          rm -rf package
+          # Copy package contents from temp location to root
+          cp -r /tmp/upm-package/* .
 
           # Add and commit
           git add -A
