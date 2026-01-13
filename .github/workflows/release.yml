@@ -188,10 +188,56 @@ jobs:
           name: android-armv7
           path: native/lindera-ffi/target/armv7-linux-androideabi/release/liblindera_ffi.so
 
+  # Build Unity Package
+  build-unity-package:
+    name: Build Unity Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-UnityPackage-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-UnityPackage-
+            Library-
+
+      - name: Get package version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Export Unity Package
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneLinux64
+          buildMethod: LinderaUnityBinding.Editor.LinderaPackageExporter.ExportFromCommandLine
+          customParameters: -outputPath ${{ github.workspace }}/LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
+
+      - name: Upload Unity Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-package
+          path: LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
+
   # Create release package
   release:
     name: Create Release
-    needs: [test, build-windows, build-macos, build-linux, build-ios, build-android]
+    needs: [test, build-windows, build-macos, build-linux, build-ios, build-android, build-unity-package]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -273,6 +319,13 @@ jobs:
           cd package
           zip -r ../com.ayutaz.lindera-unity-binding-${{ steps.version.outputs.version }}.zip .
 
+      - name: Prepare Unity Package for release
+        run: |
+          # Copy Unity package from artifacts to root for release
+          cp artifacts/unity-package/*.unitypackage LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
+          echo "Unity package prepared for release"
+          ls -la *.unitypackage
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -283,6 +336,7 @@ jobs:
           generate_release_notes: true
           files: |
             com.ayutaz.lindera-unity-binding-${{ steps.version.outputs.version }}.zip
+            LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
