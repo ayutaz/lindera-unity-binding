@@ -51,3 +51,4 @@ target/
 # Claude Code temp files
 .claude/
 tmpclaude-*
+.uloop/

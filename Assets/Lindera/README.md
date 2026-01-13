@@ -47,6 +47,15 @@ foreach (var token in tokens)
 }
 ```
 
+## Sample Scene
+
+A sample scene is included in `Assets/Samples/Lindera/BasicUsage/`:
+
+1. Open `LinderaSample.unity`
+2. Run menu: **Lindera > Setup Sample Scene** (adds LinderaSampleUI component)
+3. Enter Play Mode
+4. Enter Japanese text and click "Tokenize" to see results
+
 ## License
 
 Apache-2.0

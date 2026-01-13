@@ -1,0 +1,16 @@
+{
+    "name": "Lindera.Samples",
+    "rootNamespace": "Lindera.Samples",
+    "references": [
+        "Lindera"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
