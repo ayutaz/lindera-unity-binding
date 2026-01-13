@@ -94,13 +94,22 @@ wasm-pack build --release --features=ipadic --target=bundler
 2. 実装工数が少ない
 3. 辞書データの管理が不要
 
-## 次のステップ
+## 実装状況
 
-1. [ ] lindera-wasm-ipadicをダウンロードして動作確認
-2. [ ] Unity WebGL用のjslibプラグイン作成
-3. [ ] C#側のWebGL用ラッパークラス作成
-4. [ ] プラットフォーム別の切り替え機構実装
-5. [ ] WebGLビルドでのテスト
+### 完了
+
+1. [x] lindera-wasm-ipadicをダウンロードして構造確認
+2. [x] Unity WebGL用のjslibプラグイン作成 (`LinderaWebGL.jslib`)
+3. [x] C#側のWebGL用ラッパークラス作成 (`LinderaTokenizerWebGL.cs`)
+4. [x] プラットフォーム別の切り替え機構実装 (`LinderaTokenizerFactory.cs`)
+5. [x] インターフェース定義 (`ILinderaTokenizer.cs`)
+
+### 残作業
+
+1. [ ] jslibの完全実装（lindera-wasmとの連携）
+2. [ ] StreamingAssetsへのWASMファイル配置
+3. [ ] WebGLビルドでのテスト
+4. [ ] ドキュメント更新
 
 ## 参考リンク
 

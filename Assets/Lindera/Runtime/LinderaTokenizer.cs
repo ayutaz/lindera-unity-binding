@@ -34,7 +34,7 @@ namespace LinderaUnityBinding
     /// }
     /// </code>
     /// </example>
-    public sealed class LinderaTokenizer : IDisposable
+    public sealed class LinderaTokenizer : ILinderaTokenizer
     {
         private IntPtr _handle;
         private bool _disposed;
