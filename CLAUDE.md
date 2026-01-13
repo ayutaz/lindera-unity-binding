@@ -144,6 +144,47 @@ cargo build --release
 | `lindera_tokens_*` | トークン結果操作 |
 | `lindera_string_free` | 文字列メモリ解放 |
 
+## CI/CD
+
+### GitHub Actions ワークフロー
+
+| ワークフロー | 説明 | トリガー |
+|-------------|------|---------|
+| `test.yml` | Unity EditMode/PlayMode テスト実行 | push/PR (Assets, Packages変更時) |
+| `build-native.yml` | ネイティブライブラリビルド | push/PR (native変更時) |
+| `release.yml` | UPMパッケージリリース作成 | タグ作成時 (v*) |
+
+### 必要なシークレット
+
+Unity CIを実行するには以下のシークレットをリポジトリに設定する必要があります：
+
+| シークレット名 | 説明 |
+|---------------|------|
+| `UNITY_LICENSE` | Unity License File (`.ulf` ファイルの内容) |
+| `UNITY_EMAIL` | Unity Account Email |
+| `UNITY_PASSWORD` | Unity Account Password |
+
+### Unity License の取得方法
+
+1. [GameCI Activation](https://game.ci/docs/github/activation) を参照
+2. Personal ライセンスの場合は `game-ci/unity-request-activation-file` を使用
+3. 取得した `.alf` ファイルを Unity License Portal でアクティベート
+4. 取得した `.ulf` ファイルの内容を `UNITY_LICENSE` シークレットに設定
+
+### リリース手順
+
+1. `package.json` のバージョンを更新
+2. `CHANGELOG.md` に変更内容を記載
+3. タグを作成してプッシュ:
+   ```bash
+   git tag v0.3.0
+   git push origin v0.3.0
+   ```
+4. GitHub Actions が自動でリリースを作成
+   - すべてのプラットフォーム向けネイティブライブラリをビルド
+   - UPMパッケージを zip で作成
+   - `upm` ブランチを更新（UPM Git URL用）
+
 ## 開発時の注意点
 
 - 非同期処理は必ずUniTaskを使用すること
