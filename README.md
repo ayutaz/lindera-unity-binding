@@ -1,14 +1,10 @@
 # Lindera Unity Binding
 
-[English](README_EN.md)
+[English](#english) | 日本語
 
 LinderaをUnityで使用するための日本語形態素解析ライブラリです。Rust製のLinderaをFFIバインディング経由で利用します。
 
 **[WebGLデモ](https://ayutaz.github.io/lindera-unity-binding/)**
-
-## デモ動画
-
-[![Lindera Unity Binding Demo](https://img.youtube.com/vi/9yte6Px-Qc4/hqdefault.jpg)](https://youtu.be/9yte6Px-Qc4)
 
 ## 機能
 
@@ -31,20 +27,36 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 - Unity 2021.3 以降
 - [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 以降
 
-### サンプルシーンの要件
-
-サンプルシーンには追加パッケージが必要です（Unityで自動インストール）:
-
-- TextMeshPro 3.0.9 以降
-- Input System 1.11.2 以降
-- uGUI 2.0.0 以降
-
 ## 使い方
+
+### 推奨: ファクトリパターン（全プラットフォーム対応）
+
+```csharp
+using LinderaUnityBinding;
+using Cysharp.Threading.Tasks;
+
+async UniTaskVoid Start()
+{
+    // プラットフォームに応じたトークナイザーを非同期で作成
+    // WebGLの場合はWASMの初期化が自動で行われます
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
+
+    // テキストをトークナイズ
+    var tokens = tokenizer.Tokenize("東京都に住んでいます");
+
+    foreach (var token in tokens)
+    {
+        Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
+    }
+}
+```
+
+### ネイティブプラットフォーム専用（従来の方法）
 
 ```csharp
 using LinderaUnityBinding;
 
-// トークナイザーを作成
+// トークナイザーを作成（WebGLでは使用不可）
 using var tokenizer = new LinderaTokenizer();
 
 // テキストをトークナイズ
@@ -56,16 +68,6 @@ foreach (var token in tokens)
 }
 ```
 
-### トークンのプロパティ
-
-| プロパティ | 説明 |
-|-----------|------|
-| `Surface` | 表層形（トークンのテキスト） |
-| `Reading` | 読み（カタカナ、IPADIC由来） |
-| `PartOfSpeech` | 品詞 |
-| `ByteStart` | 元テキストでのバイト開始位置 |
-| `ByteEnd` | 元テキストでのバイト終了位置 |
-
 ### 非同期トークナイズ
 
 ```csharp
@@ -74,10 +76,8 @@ using Cysharp.Threading.Tasks;
 
 async UniTaskVoid TokenizeAsync()
 {
-    using var tokenizer = new LinderaTokenizer();
-
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
     var tokens = await tokenizer.TokenizeAsync("日本語テキスト");
-
     foreach (var token in tokens)
     {
         Debug.Log(token.Surface);
@@ -85,135 +85,141 @@ async UniTaskVoid TokenizeAsync()
 }
 ```
 
+## WebGL対応
+
+WebGLプラットフォームでは、lindera-wasm（公式WASMビルド）を使用して形態素解析を行います。
+
+### WebGL使用時の注意点
+
+1. **必ず`LinderaTokenizerFactory`を使用してください** - 直接`LinderaTokenizer`を使用するとWebGLでは動作しません
+2. **非同期初期化が必要です** - WASMモジュールの読み込みに時間がかかります
+3. **StreamingAssetsにWASMファイルが必要です** - パッケージに含まれています
+
+### プラットフォーム判定
+
+```csharp
+// WebGLかどうかを確認
+if (LinderaTokenizerFactory.IsWebGL)
+{
+    Debug.Log("Running on WebGL with WASM");
+}
+```
+
 ## 重要な注意事項
 
 ### スレッドセーフティ
 
-`LinderaTokenizer` は**スレッドセーフではありません**。複数のスレッドから同時に同じインスタンスを使用しないでください。マルチスレッド環境では:
-
-- スレッドごとに別の `LinderaTokenizer` インスタンスを作成する、または
-- 適切な同期機構を使用する
-
-`TokenizeAsync` を使用する場合、同じインスタンスで複数回同時に呼び出さないでください。
+`LinderaTokenizer` は**スレッドセーフではありません**。マルチスレッド環境では、スレッドごとに別のインスタンスを作成するか、適切な同期機構を使用してください。
 
 ### リソース管理
 
-使用後は必ずトークナイザーをDisposeしてください。`using` ステートメントの使用を推奨します:
-
-```csharp
-using (var tokenizer = new LinderaTokenizer())
-{
-    var tokens = tokenizer.Tokenize("テキスト");
-    // トークンを処理
-} // ここでトークナイザーは自動的にDisposeされます
-```
-
-### エラーハンドリング
-
-トークナイザーは以下の例外をスローする可能性があります:
-
-| 例外 | 説明 |
-|-----|------|
-| `LinderaException` | ネイティブライブラリ操作の失敗 |
-| `ObjectDisposedException` | トークナイザーが既にDisposeされている |
-| `DllNotFoundException` | ネイティブライブラリが見つからない（Pluginsディレクトリを確認） |
-
-## サンプルシーン
-
-`Assets/Samples/Lindera/BasicUsage/` にサンプルシーンが含まれています:
-
-1. メニュー **Lindera > Open Sample Scene** でシーンを開く
-2. メニュー **Lindera > Setup Sample Scene** を実行（UGUI + TextMeshPro + 日本語フォントを作成）
-3. Play Modeに入る
-4. 日本語テキストを入力し、「Tokenize」をクリックして結果を確認
-
-サンプルで使用しているもの:
-- 高品質テキストレンダリングのためのUGUI + TextMeshPro
-- 日本語文字サポートのためのNoto Sans CJK JPフォント
-- モダンな入力処理のためのInput System
-
-## 対応プラットフォーム
-
-| プラットフォーム | アーキテクチャ | ライブラリ |
-|-----------------|---------------|-----------|
-| Windows | x64 | `lindera_ffi.dll` |
-| macOS | Universal (x64 + ARM64) | `liblindera_ffi.dylib` |
-| Linux | x64 | `liblindera_ffi.so` |
-| iOS | ARM64 | `liblindera_ffi.a` (静的) |
-| Android | ARM64 | `liblindera_ffi.so` |
-| Android | ARMv7 | `liblindera_ffi.so` |
-| WebGL | WASM | `lindera-wasm` (npm) |
-
-## ネイティブライブラリのビルド
-
-ネイティブライブラリはリリース時にCI/CDで自動的にビルドされます。ローカル開発用に手動でビルドすることも可能です:
-
-### 前提条件
-
-- Rust 1.70 以降（`rustup` 推奨）
-
-### Windows (x64)
-
-```bash
-cd native/lindera-ffi
-cargo build --release --target x86_64-pc-windows-msvc
-# 出力: target/x86_64-pc-windows-msvc/release/lindera_ffi.dll
-```
-
-### macOS (Universal Binary)
-
-```bash
-cd native/lindera-ffi
-rustup target add x86_64-apple-darwin aarch64-apple-darwin
-cargo build --release --target x86_64-apple-darwin
-cargo build --release --target aarch64-apple-darwin
-lipo -create \
-  target/x86_64-apple-darwin/release/liblindera_ffi.dylib \
-  target/aarch64-apple-darwin/release/liblindera_ffi.dylib \
-  -output liblindera_ffi.dylib
-```
-
-### Linux (x64)
-
-```bash
-cd native/lindera-ffi
-cargo build --release --target x86_64-unknown-linux-gnu
-# 出力: target/x86_64-unknown-linux-gnu/release/liblindera_ffi.so
-```
-
-### iOS (ARM64)
-
-```bash
-cd native/lindera-ffi
-rustup target add aarch64-apple-ios
-cargo build --release --target aarch64-apple-ios
-# 出力: target/aarch64-apple-ios/release/liblindera_ffi.a
-```
-
-### Android (ARM64/ARMv7)
-
-Android NDKが必要です。詳細なセットアップは `.github/workflows/build-native.yml` を参照してください。
-
-```bash
-cd native/lindera-ffi
-rustup target add aarch64-linux-android armv7-linux-androideabi
-cargo build --release --target aarch64-linux-android
-cargo build --release --target armv7-linux-androideabi
-```
-
-### ビルド後のライブラリ配置
-
-ビルド後、適切なPluginsディレクトリにライブラリをコピーしてください:
-
-| プラットフォーム | ソース | 配置先 |
-|-----------------|--------|--------|
-| Windows | `target/x86_64-pc-windows-msvc/release/lindera_ffi.dll` | `Plugins/x86_64/` |
-| macOS | `liblindera_ffi.dylib` (universal) | `Plugins/macOS/` |
-| Linux | `target/x86_64-unknown-linux-gnu/release/liblindera_ffi.so` | `Plugins/Linux/` |
-| iOS | `target/aarch64-apple-ios/release/liblindera_ffi.a` | `Plugins/iOS/` |
-| Android ARM64 | `target/aarch64-linux-android/release/liblindera_ffi.so` | `Plugins/Android/libs/arm64-v8a/` |
-| Android ARMv7 | `target/armv7-linux-androideabi/release/liblindera_ffi.so` | `Plugins/Android/libs/armeabi-v7a/` |
+使用後は必ず `using` ステートメントでDisposeしてください。
 
 ## ライセンス
+
+Apache-2.0
+
+---
+
+<a name="english"></a>
+# English
+
+Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bindings.
+
+**[WebGL Demo](https://ayutaz.github.io/lindera-unity-binding/)**
+
+## Features
+
+- Japanese text tokenization
+- Reading (furigana) extraction from IPADIC dictionary
+- Part-of-speech tagging
+- Multi-platform support (Windows, macOS, Linux, iOS, Android, **WebGL**)
+- Async operations with UniTask
+
+## Installation
+
+### Via Unity Package Manager (Git URL)
+
+1. Open Window > Package Manager
+2. Click "+" button and select "Add package from git URL..."
+3. Enter: `https://github.com/ayutaz/lindera-unity-binding.git?path=Assets/Lindera`
+
+## Requirements
+
+- Unity 2021.3 or later
+- [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 or later
+
+## Usage
+
+### Recommended: Factory Pattern (All Platforms)
+
+```csharp
+using LinderaUnityBinding;
+using Cysharp.Threading.Tasks;
+
+async UniTaskVoid Start()
+{
+    // Create platform-appropriate tokenizer asynchronously
+    // WASM initialization is automatic on WebGL
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
+
+    // Tokenize text
+    var tokens = tokenizer.Tokenize("東京都に住んでいます");
+
+    foreach (var token in tokens)
+    {
+        Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
+    }
+}
+```
+
+### Native Platforms Only (Legacy)
+
+```csharp
+using LinderaUnityBinding;
+
+// Create tokenizer (not available on WebGL)
+using var tokenizer = new LinderaTokenizer();
+
+// Tokenize text
+var tokens = tokenizer.Tokenize("東京都に住んでいます");
+
+foreach (var token in tokens)
+{
+    Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
+}
+```
+
+## WebGL Support
+
+On WebGL platform, lindera-wasm (official WASM build) is used for morphological analysis.
+
+### WebGL Usage Notes
+
+1. **Always use `LinderaTokenizerFactory`** - Direct `LinderaTokenizer` won't work on WebGL
+2. **Async initialization required** - WASM module loading takes time
+3. **WASM files in StreamingAssets required** - Included in package
+
+### Platform Detection
+
+```csharp
+// Check if running on WebGL
+if (LinderaTokenizerFactory.IsWebGL)
+{
+    Debug.Log("Running on WebGL with WASM");
+}
+```
+
+## Important Notes
+
+### Thread Safety
+
+`LinderaTokenizer` is **NOT thread-safe**. In multi-threaded environments, create a separate instance for each thread or use proper synchronization.
+
+### Resource Management
+
+Always dispose using `using` statements.
+
+## License
 
 Apache-2.0

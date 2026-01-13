@@ -1,0 +1,28 @@
+{
+  "name": "com.ayutaz.lindera-unity-binding",
+  "version": "0.1.0",
+  "displayName": "Lindera Unity Binding",
+  "description": "Japanese morphological analyzer for Unity. Provides tokenization capabilities using Lindera (Rust-based) via FFI bindings.",
+  "unity": "2021.3",
+  "documentationUrl": "https://github.com/ayutaz/lindera-unity-binding",
+  "changelogUrl": "https://github.com/ayutaz/lindera-unity-binding/blob/main/Assets/Lindera/CHANGELOG.md",
+  "licensesUrl": "https://github.com/ayutaz/lindera-unity-binding/blob/main/LICENSE",
+  "keywords": [
+    "japanese",
+    "morphological-analysis",
+    "tokenizer",
+    "nlp",
+    "lindera"
+  ],
+  "author": {
+    "name": "ayutaz",
+    "url": "https://github.com/ayutaz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ayutaz/lindera-unity-binding.git"
+  },
+  "dependencies": {
+    "com.cysharp.unitask": "2.5.10"
+  }
+}
