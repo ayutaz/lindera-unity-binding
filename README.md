@@ -83,6 +83,39 @@ async UniTaskVoid TokenizeAsync()
 }
 ```
 
+## Important Notes
+
+### Thread Safety
+
+`LinderaTokenizer` is **NOT thread-safe**. Do not use the same instance from multiple threads simultaneously. For multi-threaded usage:
+
+- Create a separate `LinderaTokenizer` instance for each thread, or
+- Use proper synchronization mechanisms
+
+When using `TokenizeAsync`, do not call it multiple times concurrently on the same instance.
+
+### Resource Management
+
+Always dispose the tokenizer after use. The recommended pattern is using `using` statements:
+
+```csharp
+using (var tokenizer = new LinderaTokenizer())
+{
+    var tokens = tokenizer.Tokenize("テキスト");
+    // Process tokens
+} // Tokenizer is automatically disposed here
+```
+
+### Error Handling
+
+The tokenizer may throw the following exceptions:
+
+| Exception | Description |
+|-----------|-------------|
+| `LinderaException` | Native library operation failed |
+| `ObjectDisposedException` | Tokenizer was already disposed |
+| `DllNotFoundException` | Native library not found (check Plugins directory) |
+
 ## Sample Scene
 
 A sample scene is included in `Assets/Samples/Lindera/BasicUsage/`:
