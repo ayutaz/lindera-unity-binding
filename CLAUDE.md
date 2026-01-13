@@ -36,7 +36,8 @@ LinderaをUnityで動作させるためのプロジェクト。Linderaは日本�
 
 ```
 Packages/
-└── com.and.lindera/
+├── manifest.json             # ローカルパッケージ参照
+└── com.and.lindera/          # UPMパッケージ本体
     ├── package.json
     ├── README.md
     ├── LICENSE
@@ -48,11 +49,6 @@ Packages/
     │   ├── LinderaException.cs
     │   ├── NativeMethods.cs
     │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
-    ├── Tests/
-    │   ├── Editor/
-    │   │   └── Lindera.Editor.Tests.asmdef
-    │   └── Runtime/
-    │       └── Lindera.Runtime.Tests.asmdef
     └── Plugins/
         ├── x86_64/           # Windows 64-bit (.dll)
         ├── macOS/            # macOS Universal (.dylib)
@@ -63,12 +59,25 @@ Packages/
                 ├── arm64-v8a/    # Android ARM64 (.so)
                 └── armeabi-v7a/  # Android ARMv7 (.so)
 
+Assets/
+└── Tests/                    # 開発用テスト（パッケージ配布には含まれない）
+    ├── Editor/
+    │   └── Lindera.Tests.Editor.asmdef
+    └── Runtime/
+        └── Lindera.Tests.Runtime.asmdef
+
 native/
-└── lindera-ffi/          # Rust FFIライブラリ
+└── lindera-ffi/              # Rust FFIライブラリ
     ├── Cargo.toml
-    ├── build.rs          # csbindgen設定
+    ├── build.rs              # csbindgen設定
     └── src/
         └── lib.rs
+```
+
+## UPMインストール方法
+
+```
+https://github.com/ayutaz/lindera-unity-binding.git?path=Packages/com.and.lindera
 ```
 
 ## ビルドコマンド

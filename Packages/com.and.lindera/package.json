@@ -24,12 +24,5 @@
   },
   "dependencies": {
     "com.cysharp.unitask": "2.5.10"
-  },
-  "samples": [
-    {
-      "displayName": "Basic Usage",
-      "description": "Basic tokenization example",
-      "path": "Samples~/BasicUsage"
-    }
-  ]
+  }
 }

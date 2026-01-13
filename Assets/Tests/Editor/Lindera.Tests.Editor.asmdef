@@ -1,5 +1,5 @@
 {
-    "name": "Lindera.Runtime.Tests",
+    "name": "Lindera.Tests.Editor",
     "rootNamespace": "Lindera.Tests",
     "references": [
         "Lindera",
@@ -7,7 +7,9 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": true,
