@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **WebGL/WASM support** using lindera-wasm (official WASM build)
+  - `ILinderaTokenizer` interface for platform abstraction
+  - `LinderaTokenizerFactory` for cross-platform tokenizer creation
+  - `LinderaTokenizerWebGL` for WebGL-specific implementation
+  - JavaScript plugin (`LinderaWebGL.jslib`) for WASM integration
+  - Automatic WASM initialization with async support
+- GitHub Actions workflow for WebGL build and GitHub Pages deployment (`webgl-deploy.yml`)
+- `LinderaTokenizerFactoryTests` for factory pattern testing
 - CI/CD support with GitHub Actions
   - Automated Unity tests (EditMode/PlayMode)
   - Automated native library builds for all platforms
