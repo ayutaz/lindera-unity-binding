@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Android ARM64 and ARMv7
 - Platform-specific Unity meta files with correct import settings
 - Native library build documentation in README
+- Thread-safety documentation for LinderaTokenizer
+- Comprehensive XML documentation for all public API members
+- Additional integration tests for edge cases (mixed-script, large text, symbols, etc.)
+
+### Changed
+- PtrToStringUTF8 now has bounds checking to prevent infinite loops on malformed data
+- LinderaSampleUI now has robust error handling for tokenizer initialization
+- CI/CD workflows now have timeouts and better artifact validation
 
 ## [0.2.0] - 2025-01-13
 
