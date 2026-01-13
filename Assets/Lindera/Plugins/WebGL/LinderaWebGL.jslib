@@ -532,18 +532,27 @@ var LinderaWebGLPlugin = {
             var tokens = LinderaState.takeFromExternrefTable(result[0]);
             console.log('[LinderaWebGL] Tokens:', tokens);
 
+            // Debug: log first token structure
+            if (Array.isArray(tokens) && tokens.length > 0) {
+                console.log('[LinderaWebGL] First token keys:', Object.keys(tokens[0]));
+                console.log('[LinderaWebGL] First token:', JSON.stringify(tokens[0]));
+            }
+
             // Convert tokens to JSON format for C#
-            // lindera-wasm returns array of objects with: text, byte_start, byte_end, position, details
+            // lindera-wasm returns array of token objects
             var tokensArray = [];
             if (Array.isArray(tokens)) {
                 for (var i = 0; i < tokens.length; i++) {
                     var t = tokens[i];
+                    // Try different property names that lindera-wasm might use
+                    var tokenText = t.text || t.surface || t.token || '';
+                    var details = t.details || t.detail || [];
                     tokensArray.push({
-                        text: t.text || '',
-                        byte_start: t.byte_start || 0,
-                        byte_end: t.byte_end || 0,
-                        position: t.position || 0,
-                        details: t.details || []
+                        text: tokenText,
+                        byte_start: t.byte_start || t.byteStart || t.start || 0,
+                        byte_end: t.byte_end || t.byteEnd || t.end || 0,
+                        position: t.position || t.pos || 0,
+                        details: Array.isArray(details) ? details : []
                     });
                 }
             }
