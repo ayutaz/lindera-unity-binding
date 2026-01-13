@@ -1,6 +1,6 @@
 {
-    "name": "Lindera",
-    "rootNamespace": "Lindera",
+    "name": "LinderaUnityBinding",
+    "rootNamespace": "LinderaUnityBinding",
     "references": [
         "UniTask"
     ],

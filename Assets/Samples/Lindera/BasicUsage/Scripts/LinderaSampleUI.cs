@@ -3,9 +3,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Lindera;
+using LinderaUnityBinding;
 
-namespace Lindera.Samples
+namespace LinderaUnityBinding.Samples
 {
     /// <summary>
     /// Linderaの基本的な使い方を示すサンプルUI（UGUI + TextMeshPro版）

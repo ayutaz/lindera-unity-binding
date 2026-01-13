@@ -1,9 +1,9 @@
 {
-    "name": "Lindera.Samples.Editor",
-    "rootNamespace": "Lindera.Samples.Editor",
+    "name": "LinderaUnityBinding.Samples.Editor",
+    "rootNamespace": "LinderaUnityBinding.Samples.Editor",
     "references": [
-        "Lindera",
-        "Lindera.Samples",
+        "LinderaUnityBinding",
+        "LinderaUnityBinding.Samples",
         "Unity.TextMeshPro",
         "Unity.InputSystem"
     ],

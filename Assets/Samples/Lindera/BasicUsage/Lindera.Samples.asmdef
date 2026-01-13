@@ -1,8 +1,8 @@
 {
-    "name": "Lindera.Samples",
-    "rootNamespace": "Lindera.Samples",
+    "name": "LinderaUnityBinding.Samples",
+    "rootNamespace": "LinderaUnityBinding.Samples",
     "references": [
-        "Lindera",
+        "LinderaUnityBinding",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [],

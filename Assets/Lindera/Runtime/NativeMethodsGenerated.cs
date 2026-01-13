@@ -8,7 +8,7 @@ using System;
 using System.Runtime.InteropServices;
 
 
-namespace Lindera
+namespace LinderaUnityBinding
 {
     internal static unsafe partial class NativeMethodsGenerated
     {

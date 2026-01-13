@@ -1,4 +1,4 @@
-namespace Lindera
+namespace LinderaUnityBinding
 {
     /// <summary>
     /// 形態素解析結果のトークン
