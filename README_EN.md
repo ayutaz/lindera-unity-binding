@@ -4,12 +4,14 @@
 
 Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bindings.
 
+**[WebGL Demo](https://ayutaz.github.io/lindera-unity-binding/)**
+
 ## Features
 
 - Japanese text tokenization
 - Reading (furigana) extraction from IPADIC dictionary
 - Part-of-speech tagging
-- Multi-platform support (Windows, macOS, Linux, iOS, Android)
+- Multi-platform support (Windows, macOS, Linux, iOS, Android, **WebGL**)
 - Async operations with UniTask
 
 ## Installation
@@ -136,6 +138,7 @@ The sample uses:
 | iOS | ARM64 | `liblindera_ffi.a` (static) |
 | Android | ARM64 | `liblindera_ffi.so` |
 | Android | ARMv7 | `liblindera_ffi.so` |
+| WebGL | WASM | `lindera-wasm` (npm) |
 
 ## Building Native Libraries
 
