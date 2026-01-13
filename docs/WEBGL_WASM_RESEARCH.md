@@ -103,13 +103,16 @@ wasm-pack build --release --features=ipadic --target=bundler
 3. [x] C#側のWebGL用ラッパークラス作成 (`LinderaTokenizerWebGL.cs`)
 4. [x] プラットフォーム別の切り替え機構実装 (`LinderaTokenizerFactory.cs`)
 5. [x] インターフェース定義 (`ILinderaTokenizer.cs`)
+6. [x] jslibの完全実装（wasm-bindgen互換imports、externrefテーブル処理）
+7. [x] StreamingAssetsへのWASMファイル配置
+8. [x] サンプルシーンのファクトリパターン対応
+9. [x] GitHub ActionsでWebGLビルド＆GitHub Pagesデプロイワークフロー作成
+10. [x] LinderaTokenizerFactoryのユニットテスト追加
+11. [x] ドキュメント更新（README, CHANGELOG, CLAUDE.md）
 
 ### 残作業
 
-1. [ ] jslibの完全実装（lindera-wasmとの連携）
-2. [ ] StreamingAssetsへのWASMファイル配置
-3. [ ] WebGLビルドでのテスト
-4. [ ] ドキュメント更新
+なし（実装完了）
 
 ## 参考リンク
 
