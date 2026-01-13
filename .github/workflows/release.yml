@@ -226,7 +226,7 @@ jobs:
         with:
           targetPlatform: StandaloneLinux64
           buildMethod: LinderaUnityBinding.Editor.LinderaPackageExporter.ExportFromCommandLine
-          customParameters: -outputPath ${{ github.workspace }}/LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
+          customParameters: -outputPath /github/workspace/LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
 
       - name: Upload Unity Package
         uses: actions/upload-artifact@v4

@@ -44,15 +44,19 @@ jobs:
         with:
           targetPlatform: StandaloneLinux64
           buildMethod: LinderaUnityBinding.Editor.LinderaPackageExporter.ExportFromCommandLine
-          customParameters: -outputPath ${{ github.workspace }}/LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
+          customParameters: -outputPath /github/workspace/LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage
 
       - name: Verify package exists
         run: |
+          echo "Listing workspace contents:"
+          ls -la
           if [ -f "LinderaUnityBinding-${{ steps.version.outputs.version }}.unitypackage" ]; then
             echo "Unity package created successfully"
             ls -la LinderaUnityBinding-*.unitypackage
           else
             echo "ERROR: Unity package not found"
+            echo "Looking for any .unitypackage files:"
+            find . -name "*.unitypackage" -type f 2>/dev/null || echo "No .unitypackage files found"
             exit 1
           fi
 
