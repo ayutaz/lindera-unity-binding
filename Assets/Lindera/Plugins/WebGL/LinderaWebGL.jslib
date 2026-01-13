@@ -443,6 +443,36 @@ var LinderaWebGLPlugin = {
             }
             var builderPtr = builderResult[0] >>> 0;
 
+            // Set dictionary to embedded IPADIC (required for lindera-wasm-ipadic)
+            var dictPtr = LinderaState.passStringToWasm(
+                'embedded://ipadic',
+                LinderaState.wasm.__wbindgen_malloc,
+                LinderaState.wasm.__wbindgen_realloc
+            );
+            var dictLen = LinderaState.WASM_VECTOR_LEN;
+            var dictResult = LinderaState.wasm.tokenizerbuilder_setDictionary(builderPtr, dictPtr, dictLen);
+            if (dictResult[1]) {
+                var error = LinderaState.takeFromExternrefTable(dictResult[0]);
+                console.error('[LinderaWebGL] Failed to set dictionary:', error);
+                return 0;
+            }
+            console.log('[LinderaWebGL] Dictionary set to embedded://ipadic');
+
+            // Set mode to normal
+            var modePtr = LinderaState.passStringToWasm(
+                'normal',
+                LinderaState.wasm.__wbindgen_malloc,
+                LinderaState.wasm.__wbindgen_realloc
+            );
+            var modeLen = LinderaState.WASM_VECTOR_LEN;
+            var modeResult = LinderaState.wasm.tokenizerbuilder_setMode(builderPtr, modePtr, modeLen);
+            if (modeResult[1]) {
+                var error = LinderaState.takeFromExternrefTable(modeResult[0]);
+                console.error('[LinderaWebGL] Failed to set mode:', error);
+                return 0;
+            }
+            console.log('[LinderaWebGL] Mode set to normal');
+
             // Build tokenizer: returns [tokenizer_ptr, error_idx, has_error]
             var tokenizerResult = LinderaState.wasm.tokenizerbuilder_build(builderPtr);
             if (tokenizerResult[2]) {
