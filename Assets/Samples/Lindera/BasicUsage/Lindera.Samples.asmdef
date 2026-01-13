@@ -2,7 +2,8 @@
     "name": "Lindera.Samples",
     "rootNamespace": "Lindera.Samples",
     "references": [
-        "Lindera"
+        "Lindera",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

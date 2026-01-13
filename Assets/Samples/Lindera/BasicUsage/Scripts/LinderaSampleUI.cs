@@ -1,74 +1,69 @@
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using Lindera;
 
 namespace Lindera.Samples
 {
     /// <summary>
-    /// Linderaの基本的な使い方を示すサンプル（OnGUI版）
+    /// Linderaの基本的な使い方を示すサンプル（UGUI + TextMeshPro版）
     /// </summary>
     public class LinderaSampleUI : MonoBehaviour
     {
+        [Header("UI References")]
+        [SerializeField] private TMP_InputField inputField;
+        [SerializeField] private TMP_Text resultText;
+        [SerializeField] private Button tokenizeButton;
+
         [Header("Settings")]
         [SerializeField] private string defaultText = "東京都に住んでいます。今日はいい天気ですね。";
 
         private LinderaTokenizer _tokenizer;
-        private string _inputText;
-        private string _resultText;
-        private Vector2 _scrollPosition;
 
         private void Awake()
         {
             _tokenizer = new LinderaTokenizer();
-            _inputText = defaultText;
         }
 
         private void Start()
         {
-            Tokenize(_inputText);
+            if (inputField != null)
+            {
+                inputField.text = defaultText;
+            }
+
+            if (tokenizeButton != null)
+            {
+                tokenizeButton.onClick.AddListener(OnTokenizeButtonClicked);
+            }
+
+            Tokenize(defaultText);
         }
 
         private void OnDestroy()
         {
             _tokenizer?.Dispose();
+
+            if (tokenizeButton != null)
+            {
+                tokenizeButton.onClick.RemoveListener(OnTokenizeButtonClicked);
+            }
         }
 
-        private void OnGUI()
+        private void OnTokenizeButtonClicked()
         {
-            GUILayout.BeginArea(new Rect(20, 20, Screen.width - 40, Screen.height - 40));
-
-            // タイトル
-            GUILayout.Label("Lindera Sample - Japanese Tokenizer", GUI.skin.GetStyle("Box"));
-            GUILayout.Space(10);
-
-            // 入力フィールド
-            GUILayout.Label("日本語テキストを入力:");
-            _inputText = GUILayout.TextArea(_inputText, GUILayout.Height(60));
-
-            GUILayout.Space(10);
-
-            // トークナイズボタン
-            if (GUILayout.Button("Tokenize", GUILayout.Height(40)))
+            if (inputField != null)
             {
-                Tokenize(_inputText);
+                Tokenize(inputField.text);
             }
-
-            GUILayout.Space(10);
-
-            // 結果表示
-            GUILayout.Label("結果:");
-            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, GUI.skin.box);
-            GUILayout.Label(_resultText);
-            GUILayout.EndScrollView();
-
-            GUILayout.EndArea();
         }
 
         private void Tokenize(string text)
         {
             if (string.IsNullOrEmpty(text))
             {
-                _resultText = "テキストを入力してください";
+                SetResultText("テキストを入力してください");
                 return;
             }
 
@@ -88,8 +83,17 @@ namespace Lindera.Samples
                 sb.AppendLine();
             }
 
-            _resultText = sb.ToString();
-            Debug.Log(_resultText);
+            var result = sb.ToString();
+            SetResultText(result);
+            Debug.Log(result);
+        }
+
+        private void SetResultText(string text)
+        {
+            if (resultText != null)
+            {
+                resultText.text = text;
+            }
         }
     }
 }

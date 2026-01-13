@@ -3,7 +3,9 @@
     "rootNamespace": "Lindera.Samples.Editor",
     "references": [
         "Lindera",
-        "Lindera.Samples"
+        "Lindera.Samples",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"
