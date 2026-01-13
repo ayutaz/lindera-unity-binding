@@ -1,7 +1,7 @@
 {
   "name": "com.ayutaz.lindera-unity-binding",
   "version": "0.2.0",
-  "displayName": "Lindera",
+  "displayName": "Lindera Unity Binding",
   "description": "Japanese morphological analyzer for Unity. Provides tokenization capabilities using Lindera (Rust-based) via FFI bindings.",
   "unity": "2021.3",
   "documentationUrl": "https://github.com/ayutaz/lindera-unity-binding",
