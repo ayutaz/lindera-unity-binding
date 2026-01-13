@@ -8,6 +8,13 @@ on:
       - 'Packages/**'
       - 'ProjectSettings/**'
       - '.github/workflows/webgl-deploy.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Assets/**'
+      - 'Packages/**'
+      - 'ProjectSettings/**'
+      - '.github/workflows/webgl-deploy.yml'
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -18,8 +25,8 @@ permissions:
 
 # Allow only one concurrent deployment
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -59,6 +66,7 @@ jobs:
           path: build/WebGL/LinderaDemo
 
       - name: Upload Pages Artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/WebGL/LinderaDemo
@@ -66,6 +74,8 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
+    # mainブランチへのpushの場合のみデプロイを実行
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
