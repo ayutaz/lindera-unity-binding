@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- CI/CD support with GitHub Actions
+  - Automated Unity tests (EditMode/PlayMode)
+  - Automated native library builds for all platforms
+  - Automated UPM release on tag creation
+- Pre-built native libraries for all supported platforms
+  - macOS Universal (x64 + ARM64)
+  - Linux x64
+  - iOS ARM64 (static library)
+  - Android ARM64 and ARMv7
+- Platform-specific Unity meta files with correct import settings
+- Native library build documentation in README
+
 ## [0.2.0] - 2025-01-13
 
 ### Changed
