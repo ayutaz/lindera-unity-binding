@@ -1,22 +1,49 @@
-name: Build Native Libraries
+name: Release
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'native/**'
-      - '.github/workflows/build-native.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'native/**'
-      - '.github/workflows/build-native.yml'
+    tags:
+      - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  # Run tests before release
+  test:
+    name: Pre-release Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Run EditMode Tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: EditMode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build native libraries for all platforms
   build-windows:
     runs-on: windows-latest
     steps:
@@ -161,37 +188,100 @@ jobs:
           name: android-armv7
           path: native/lindera-ffi/target/armv7-linux-androideabi/release/liblindera_ffi.so
 
-  # Collect all artifacts and create a release package
-  package:
-    needs: [build-windows, build-macos, build-linux, build-ios, build-android]
+  # Create release package
+  release:
+    name: Create Release
+    needs: [test, build-windows, build-macos, build-linux, build-ios, build-android]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            # Extract version from tag (remove 'v' prefix)
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Organize plugins
+      - name: Prepare UPM package
         run: |
-          PKG_DIR="Assets/Lindera/Plugins"
-          mkdir -p "$PKG_DIR/x86_64"
-          mkdir -p "$PKG_DIR/macOS"
-          mkdir -p "$PKG_DIR/Linux"
-          mkdir -p "$PKG_DIR/iOS"
-          mkdir -p "$PKG_DIR/Android/libs/arm64-v8a"
-          mkdir -p "$PKG_DIR/Android/libs/armeabi-v7a"
+          PKG_DIR="package"
 
-          cp artifacts/windows-x64/lindera_ffi.dll "$PKG_DIR/x86_64/"
-          cp artifacts/macos-universal/liblindera_ffi.dylib "$PKG_DIR/macOS/"
-          cp artifacts/linux-x64/liblindera_ffi.so "$PKG_DIR/Linux/"
-          cp artifacts/ios-arm64/liblindera_ffi.a "$PKG_DIR/iOS/"
-          cp artifacts/android-arm64/liblindera_ffi.so "$PKG_DIR/Android/libs/arm64-v8a/"
-          cp artifacts/android-armv7/liblindera_ffi.so "$PKG_DIR/Android/libs/armeabi-v7a/"
+          # Copy package contents
+          cp -r Assets/Lindera/* "$PKG_DIR/" 2>/dev/null || mkdir -p "$PKG_DIR"
+          cp Assets/Lindera/package.json "$PKG_DIR/"
+          cp Assets/Lindera/README.md "$PKG_DIR/"
+          cp Assets/Lindera/CHANGELOG.md "$PKG_DIR/"
+          cp Assets/Lindera/LICENSE "$PKG_DIR/" 2>/dev/null || true
 
-      - name: Upload combined package
-        uses: actions/upload-artifact@v4
+          # Create plugin directories
+          mkdir -p "$PKG_DIR/Plugins/x86_64"
+          mkdir -p "$PKG_DIR/Plugins/macOS"
+          mkdir -p "$PKG_DIR/Plugins/Linux"
+          mkdir -p "$PKG_DIR/Plugins/iOS"
+          mkdir -p "$PKG_DIR/Plugins/Android/libs/arm64-v8a"
+          mkdir -p "$PKG_DIR/Plugins/Android/libs/armeabi-v7a"
+
+          # Copy native libraries
+          cp artifacts/windows-x64/lindera_ffi.dll "$PKG_DIR/Plugins/x86_64/"
+          cp artifacts/macos-universal/liblindera_ffi.dylib "$PKG_DIR/Plugins/macOS/"
+          cp artifacts/linux-x64/liblindera_ffi.so "$PKG_DIR/Plugins/Linux/"
+          cp artifacts/ios-arm64/liblindera_ffi.a "$PKG_DIR/Plugins/iOS/"
+          cp artifacts/android-arm64/liblindera_ffi.so "$PKG_DIR/Plugins/Android/libs/arm64-v8a/"
+          cp artifacts/android-armv7/liblindera_ffi.so "$PKG_DIR/Plugins/Android/libs/armeabi-v7a/"
+
+      - name: Create release archive
+        run: |
+          cd package
+          zip -r ../com.and.lindera-${{ steps.version.outputs.version }}.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: unity-plugins
-          path: Assets/Lindera/Plugins/
+          name: v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            com.and.lindera-${{ steps.version.outputs.version }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update UPM branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create or update upm branch
+          git checkout -B upm
+
+          # Remove all files except .git
+          find . -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
+
+          # Copy package contents to root
+          cp -r package/* .
+          rm -rf package
+
+          # Add and commit
+          git add -A
+          git commit -m "Release v${{ steps.version.outputs.version }}"
+
+          # Push to upm branch
+          git push -f origin upm
+
+          # Create version tag on upm branch
+          git tag -f "v${{ steps.version.outputs.version }}-upm"
+          git push -f origin "v${{ steps.version.outputs.version }}-upm"
