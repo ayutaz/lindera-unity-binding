@@ -17,7 +17,7 @@ namespace LinderaUnityBinding.Editor
         /// <summary>
         /// Unity Packageをエクスポート（デスクトップに保存）
         /// </summary>
-        [MenuItem("Lindera/Export Unity Package")]
+        [MenuItem("Lindera Unity Binding/Export Unity Package")]
         public static void ExportPackage()
         {
             ExportPackageToPath(null);

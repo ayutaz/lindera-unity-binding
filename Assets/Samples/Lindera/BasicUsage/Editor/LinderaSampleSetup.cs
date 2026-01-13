@@ -15,7 +15,6 @@ namespace LinderaUnityBinding.Samples.Editor
         private const string FontPath = "Assets/Samples/Lindera/BasicUsage/Fonts/NotoSansJP-Regular.ttf";
         private const string FontAssetPath = "Assets/Samples/Lindera/BasicUsage/Fonts/NotoSansJP-Regular SDF.asset";
 
-        [MenuItem("Lindera/Setup Sample Scene")]
         public static void SetupSampleScene()
         {
             // フォントアセットを取得または作成
@@ -373,7 +372,6 @@ namespace LinderaUnityBinding.Samples.Editor
             return scrollView;
         }
 
-        [MenuItem("Lindera/Open Sample Scene")]
         public static void OpenSampleScene()
         {
             var scenePath = "Assets/Samples/Lindera/BasicUsage/LinderaSample.unity";
