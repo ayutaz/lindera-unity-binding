@@ -51,7 +51,11 @@ Assets/
 │   │   ├── NativeMethods.cs
 │   │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
 │   └── Plugins/
-│       └── x86_64/           # Windows 64-bit (.dll)
+│       ├── x86_64/           # Windows 64-bit (.dll)
+│       ├── macOS/            # macOS Universal (.dylib)
+│       ├── Linux/            # Linux x64 (.so)
+│       ├── iOS/              # iOS ARM64 (.a static)
+│       └── Android/libs/     # Android ARM64/ARMv7 (.so)
 │
 ├── Samples/
 │   └── Lindera/
