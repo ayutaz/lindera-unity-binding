@@ -187,6 +187,24 @@ namespace LinderaUnityBinding
         }
 
         /// <summary>
+        /// テキストをN-Best形態素解析する（WebGL版は現在未サポート）
+        /// </summary>
+        public LinderaNBestResult TokenizeNBest(string text, int n, bool deduplicate = true, long? costThreshold = null)
+        {
+            ThrowIfDisposed();
+            throw new NotSupportedException("N-Best tokenization is not yet supported on WebGL platform.");
+        }
+
+        /// <summary>
+        /// テキストを非同期でN-Best形態素解析する（WebGL版は現在未サポート）
+        /// </summary>
+        public UniTask<LinderaNBestResult> TokenizeNBestAsync(string text, int n, bool deduplicate = true, long? costThreshold = null, CancellationToken cancellationToken = default)
+        {
+            ThrowIfDisposed();
+            throw new NotSupportedException("N-Best tokenization is not yet supported on WebGL platform.");
+        }
+
+        /// <summary>
         /// JSONからトークン配列をパース
         /// </summary>
         private LinderaToken[] ParseTokensFromJson(string json)

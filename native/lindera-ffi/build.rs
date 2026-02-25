@@ -2,7 +2,7 @@ fn main() {
     csbindgen::Builder::default()
         .input_extern_file("src/lib.rs")
         .csharp_dll_name("lindera_ffi")
-        .csharp_namespace("Lindera")
+        .csharp_namespace("LinderaUnityBinding")
         .csharp_class_name("NativeMethodsGenerated")
         .csharp_class_accessibility("internal")
         .csharp_use_function_pointer(false) // Unity compatibility

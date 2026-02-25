@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-25
+
 ### Added
+- **N-Best形態素解析 API** — 複数の解析候補をコスト順に取得可能
+  - `TokenizeNBest()` / `TokenizeNBestAsync()` メソッド
+  - `LinderaNBestResult` / `LinderaNBestPath` データ型
+  - 重複排除（deduplicate）とコスト閾値（costThreshold）パラメータ対応
+  - Rust FFI: `lindera_tokenize_nbest`, `lindera_nbest_*` 関数群
+- N-Best 統合テスト（Editor/Runtime）
 - **WebGL/WASM support** using lindera-wasm (official WASM build)
   - `ILinderaTokenizer` interface for platform abstraction
   - `LinderaTokenizerFactory` for cross-platform tokenizer creation
@@ -32,9 +40,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Additional integration tests for edge cases (mixed-script, large text, symbols, etc.)
 
 ### Changed
+- Lindera ネイティブライブラリを v2.0 → v2.2 にアップデート
+  - daachorse バックエンド移行によるパフォーマンス改善
+  - 未知語 POS 推定の改善
+  - Viterbi コスト計算のバッチ最適化
 - PtrToStringUTF8 now has bounds checking to prevent infinite loops on malformed data
 - LinderaSampleUI now has robust error handling for tokenizer initialization
 - CI/CD workflows now have timeouts and better artifact validation
+
+### Note
+- WebGL プラットフォームの N-Best API は lindera-wasm の対応待ち（`NotSupportedException` をスロー）
 
 ## [0.2.0] - 2025-01-13
 

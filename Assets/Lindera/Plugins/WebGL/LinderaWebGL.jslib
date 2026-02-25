@@ -579,6 +579,16 @@ var LinderaWebGLPlugin = {
         stringToUTF8(version, buffer, bufferSize);
         return buffer;
     }
+
+    // TODO: N-Best tokenization support
+    // lindera-wasm npm package needs to be updated to support tokenizeNbest() API
+    // Once available, add:
+    // - LinderaWebGL_TokenizeNBest(tokenizerPtr, textPtr, textLen, n, deduplicate, costThresholdValid, costThreshold)
+    // - LinderaWebGL_NBestPathCount(resultPtr)
+    // - LinderaWebGL_NBestGetPathTokenCount(resultPtr, pathIndex)
+    // - LinderaWebGL_NBestGetPathToken(resultPtr, pathIndex, tokenIndex)
+    // - LinderaWebGL_NBestGetPathCost(resultPtr, pathIndex)
+    // - LinderaWebGL_NBestDestroy(resultPtr)
 };
 
 autoAddDeps(LinderaWebGLPlugin, '$LinderaState');

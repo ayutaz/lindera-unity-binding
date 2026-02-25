@@ -13,6 +13,7 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 ## Features
 
 - Japanese text tokenization
+- **N-Best tokenization** — retrieve multiple analysis candidates ranked by cost
 - Reading (furigana) extraction from IPADIC dictionary
 - Part-of-speech tagging
 - Multi-platform support (Windows, macOS, Linux, iOS, Android, **WebGL**)
@@ -41,10 +42,33 @@ The sample scene requires additional packages (automatically installed with Unit
 
 ## Usage
 
+### Recommended: Factory Pattern (All Platforms)
+
+```csharp
+using LinderaUnityBinding;
+using Cysharp.Threading.Tasks;
+
+async UniTaskVoid Start()
+{
+    // Create platform-appropriate tokenizer asynchronously
+    // WASM initialization is automatic on WebGL
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
+
+    var tokens = tokenizer.Tokenize("東京都に住んでいます");
+
+    foreach (var token in tokens)
+    {
+        Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
+    }
+}
+```
+
+### Native Platforms Only
+
 ```csharp
 using LinderaUnityBinding;
 
-// Create tokenizer
+// Create tokenizer (not available on WebGL)
 using var tokenizer = new LinderaTokenizer();
 
 // Tokenize text
@@ -74,14 +98,67 @@ using Cysharp.Threading.Tasks;
 
 async UniTaskVoid TokenizeAsync()
 {
-    using var tokenizer = new LinderaTokenizer();
-
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
     var tokens = await tokenizer.TokenizeAsync("日本語テキスト");
 
     foreach (var token in tokens)
     {
         Debug.Log(token.Surface);
     }
+}
+```
+
+### N-Best Tokenization
+
+Retrieve multiple analysis candidates ranked by Viterbi cost. Useful for disambiguation or presenting alternative segmentations.
+
+```csharp
+using LinderaUnityBinding;
+
+using var tokenizer = new LinderaTokenizer();
+
+// Get top 5 analysis candidates
+var result = tokenizer.TokenizeNBest("東京都", n: 5);
+
+foreach (var path in result.Paths)
+{
+    Debug.Log($"Cost: {path.Cost}");
+    foreach (var token in path.Tokens)
+    {
+        Debug.Log($"  {token.Surface} ({token.PartOfSpeech})");
+    }
+}
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `text` | `string` | — | Text to analyze |
+| `n` | `int` | — | Number of analysis paths to retrieve |
+| `deduplicate` | `bool` | `true` | Remove duplicate segmentations |
+| `costThreshold` | `long?` | `null` | Max cost difference from best path |
+
+#### Async Version
+
+```csharp
+var result = await tokenizer.TokenizeNBestAsync("東京都", n: 5);
+```
+
+> **Note:** N-Best API is not yet supported on WebGL (`NotSupportedException` will be thrown).
+
+## WebGL Support
+
+On WebGL, lindera-wasm (official WASM build) is used for morphological analysis.
+
+- **Always use `LinderaTokenizerFactory`** — Direct `LinderaTokenizer` won't work on WebGL
+- **Async initialization required** — WASM module loading takes time
+- N-Best API is not yet supported on WebGL
+
+```csharp
+if (LinderaTokenizerFactory.IsWebGL)
+{
+    Debug.Log("Running on WebGL with WASM");
 }
 ```
 

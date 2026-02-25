@@ -13,6 +13,7 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 ## 機能
 
 - 日本語テキストのトークナイズ（形態素解析）
+- **N-Best形態素解析** — 複数の解析候補をコスト順に取得
 - IPADIC辞書による読み仮名（ふりがな）取得
 - 品詞タグ付け
 - マルチプラットフォーム対応（Windows, macOS, Linux, iOS, Android, **WebGL**）
@@ -41,10 +42,33 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 
 ## 使い方
 
+### 推奨: ファクトリパターン（全プラットフォーム対応）
+
+```csharp
+using LinderaUnityBinding;
+using Cysharp.Threading.Tasks;
+
+async UniTaskVoid Start()
+{
+    // プラットフォームに応じたトークナイザーを非同期で作成
+    // WebGLの場合はWASMの初期化が自動で行われます
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
+
+    var tokens = tokenizer.Tokenize("東京都に住んでいます");
+
+    foreach (var token in tokens)
+    {
+        Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
+    }
+}
+```
+
+### ネイティブプラットフォーム専用
+
 ```csharp
 using LinderaUnityBinding;
 
-// トークナイザーを作成
+// トークナイザーを作成（WebGLでは使用不可）
 using var tokenizer = new LinderaTokenizer();
 
 // テキストをトークナイズ
@@ -74,14 +98,67 @@ using Cysharp.Threading.Tasks;
 
 async UniTaskVoid TokenizeAsync()
 {
-    using var tokenizer = new LinderaTokenizer();
-
+    using var tokenizer = await LinderaTokenizerFactory.CreateAsync();
     var tokens = await tokenizer.TokenizeAsync("日本語テキスト");
 
     foreach (var token in tokens)
     {
         Debug.Log(token.Surface);
     }
+}
+```
+
+### N-Best形態素解析
+
+複数の解析候補をコスト順に取得できます。テキストの曖昧性解消や、代替的な形態素分割の提示に利用できます。
+
+```csharp
+using LinderaUnityBinding;
+
+using var tokenizer = new LinderaTokenizer();
+
+// 上位5件の解析候補を取得
+var result = tokenizer.TokenizeNBest("東京都", n: 5);
+
+foreach (var path in result.Paths)
+{
+    Debug.Log($"コスト: {path.Cost}");
+    foreach (var token in path.Tokens)
+    {
+        Debug.Log($"  {token.Surface} ({token.PartOfSpeech})");
+    }
+}
+```
+
+#### パラメータ
+
+| パラメータ | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| `text` | `string` | — | 解析対象テキスト |
+| `n` | `int` | — | 取得する解析パス数 |
+| `deduplicate` | `bool` | `true` | 同一境界の結果を重複排除 |
+| `costThreshold` | `long?` | `null` | コスト閾値（ベストからの差分上限） |
+
+#### 非同期版
+
+```csharp
+var result = await tokenizer.TokenizeNBestAsync("東京都", n: 5);
+```
+
+> **注意:** WebGLプラットフォームではN-Best APIは現在未対応です（`NotSupportedException` がスローされます）。
+
+## WebGL対応
+
+WebGLプラットフォームでは、lindera-wasm（公式WASMビルド）を使用して形態素解析を行います。
+
+- **必ず`LinderaTokenizerFactory`を使用してください** — 直接`LinderaTokenizer`を使用するとWebGLでは動作しません
+- **非同期初期化が必要です** — WASMモジュールの読み込みに時間がかかります
+- N-Best APIはWebGLでは現在未対応です
+
+```csharp
+if (LinderaTokenizerFactory.IsWebGL)
+{
+    Debug.Log("Running on WebGL with WASM");
 }
 ```
 

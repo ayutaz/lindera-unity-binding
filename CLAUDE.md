@@ -12,7 +12,7 @@ LinderaをUnityで動作させるためのプロジェクト。Linderaは日本�
 |------|-----------|------|
 | Unity | 6000.3.2f1 | メインプラットフォーム |
 | Rust | 1.70+ | ネイティブライブラリ |
-| Lindera | 2.0+ | 日本語形態素解析エンジン |
+| Lindera | 2.2+ | 日本語形態素解析エンジン |
 | csbindgen | 1.9+ | RustからC#バインディング自動生成 |
 | UniTask | 2.5.10 | Unity向け非同期処理 |
 | TextMeshPro | 3.0.9 | テキストレンダリング（サンプル用） |
@@ -66,8 +66,12 @@ Assets/
 │   ├── CHANGELOG.md
 │   ├── Runtime/
 │   │   ├── Lindera.asmdef
-│   │   ├── LinderaTokenizer.cs
+│   │   ├── ILinderaTokenizer.cs       # プラットフォーム共通インターフェース
+│   │   ├── LinderaTokenizer.cs        # ネイティブ実装
+│   │   ├── LinderaTokenizerWebGL.cs   # WebGL/WASM実装
+│   │   ├── LinderaTokenizerFactory.cs # プラットフォーム自動選択ファクトリ
 │   │   ├── LinderaToken.cs
+│   │   ├── LinderaNBestResult.cs      # N-Best結果データ型
 │   │   ├── LinderaException.cs
 │   │   ├── NativeMethods.cs
 │   │   └── NativeMethodsGenerated.cs  # csbindgen自動生成
@@ -96,9 +100,17 @@ Assets/
 │
 ├── Tests/                    # 開発用テスト（配布には含まれない）
 │   ├── Editor/
-│   │   └── Lindera.Tests.Editor.asmdef
+│   │   ├── Lindera.Tests.Editor.asmdef
+│   │   ├── LinderaTokenTests.cs
+│   │   ├── LinderaExceptionTests.cs
+│   │   ├── LinderaTokenizerFactoryTests.cs
+│   │   ├── NativeMethodsTests.cs
+│   │   ├── NativeMethodsNBestTests.cs    # N-Best FFIテスト
+│   │   └── LinderaNBestResultTests.cs    # N-Bestデータ型テスト
 │   └── Runtime/
-│       └── Lindera.Tests.Runtime.asmdef
+│       ├── Lindera.Tests.Runtime.asmdef
+│       ├── LinderaTokenizerIntegrationTests.cs
+│       └── LinderaNBestIntegrationTests.cs  # N-Best統合テスト
 │
 └── TextMesh Pro/             # TMP Essential Resources
 
@@ -169,6 +181,8 @@ cargo build --release
 | `lindera_*_destroy` | リソース破棄 |
 | `lindera_tokenize` | トークナイズ実行 |
 | `lindera_tokens_*` | トークン結果操作 |
+| `lindera_tokenize_nbest` | N-Bestトークナイズ実行 |
+| `lindera_nbest_*` | N-Best結果操作 |
 | `lindera_string_free` | 文字列メモリ解放 |
 
 ## CI/CD
@@ -221,6 +235,9 @@ Unity CIを実行するには以下のシークレットをリポジトリに設
 - csbindgenの`csharp_use_function_pointer(false)`でUnity互換性確保
 - サンプルUIはUGUI + TextMeshProを使用（OnGUIは非推奨）
 - Input System Packageを使用（旧InputManagerは非対応）
+- FFIでRustの`Option<T>`を表現する場合は`valid`フラグ + 値の2パラメータ方式を使用
+- WebGLで未対応のAPIは`NotSupportedException`をスローすること
+- `ILinderaTokenizer`インターフェース経由で全プラットフォーム共通のAPIを提供すること
 
 ## 関連リソース
 

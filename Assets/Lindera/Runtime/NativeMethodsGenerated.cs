@@ -109,6 +109,75 @@ namespace LinderaUnityBinding
         [DllImport(__DllName, EntryPoint = "lindera_string_free", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         internal static extern void lindera_string_free(byte* str);
 
+        /// <summary>
+        ///  Tokenize text with N-Best algorithm returning multiple segmentation paths
+        ///
+        ///  # Arguments
+        ///  - `handle`: Tokenizer handle
+        ///  - `text`: UTF-8 encoded text
+        ///  - `text_len`: Length of text in bytes
+        ///  - `n`: Number of best paths to return
+        ///  - `deduplicate`: 1 to deduplicate paths with same word boundaries, 0 otherwise
+        ///  - `cost_threshold_valid`: 1 if cost_threshold should be used, 0 for no threshold
+        ///  - `cost_threshold`: Maximum cost delta from best result (only used if cost_threshold_valid is 1)
+        ///
+        ///  # Returns
+        ///  - Pointer to N-Best result on success
+        ///  - NULL on failure
+        ///
+        ///  # Safety
+        ///  - `handle` must be a valid tokenizer handle
+        ///  - `text` must be a valid pointer to `text_len` bytes
+        /// </summary>
+        [DllImport(__DllName, EntryPoint = "lindera_tokenize_nbest", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern LinderaNBestResultHandle* lindera_tokenize_nbest(LinderaTokenizerHandle* handle, byte* text, int text_len, int n, byte deduplicate, byte cost_threshold_valid, long cost_threshold);
+
+        /// <summary>
+        ///  Get the number of paths in an N-Best result
+        ///
+        ///  # Returns
+        ///  - Number of paths, or -1 on error
+        /// </summary>
+        [DllImport(__DllName, EntryPoint = "lindera_nbest_path_count", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int lindera_nbest_path_count(LinderaNBestResultHandle* handle);
+
+        /// <summary>
+        ///  Get the number of tokens in a specific N-Best path
+        ///
+        ///  # Returns
+        ///  - Number of tokens, or -1 on error
+        /// </summary>
+        [DllImport(__DllName, EntryPoint = "lindera_nbest_get_path_token_count", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern int lindera_nbest_get_path_token_count(LinderaNBestResultHandle* handle, int path_index);
+
+        /// <summary>
+        ///  Get a token from a specific N-Best path
+        ///
+        ///  # Returns
+        ///  - Pointer to token data, or NULL if out of bounds
+        /// </summary>
+        [DllImport(__DllName, EntryPoint = "lindera_nbest_get_path_token", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern TokenData* lindera_nbest_get_path_token(LinderaNBestResultHandle* handle, int path_index, int token_index);
+
+        /// <summary>
+        ///  Get the cost of a specific N-Best path
+        ///
+        ///  # Returns
+        ///  - Path cost, or 0 on error
+        /// </summary>
+        [DllImport(__DllName, EntryPoint = "lindera_nbest_get_path_cost", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern long lindera_nbest_get_path_cost(LinderaNBestResultHandle* handle, int path_index);
+
+        /// <summary>
+        ///  Destroy N-Best result and free all associated memory
+        ///
+        ///  # Safety
+        ///  - `handle` must be a valid pointer returned by `lindera_tokenize_nbest`
+        ///  - Must not be called twice on the same handle
+        /// </summary>
+        [DllImport(__DllName, EntryPoint = "lindera_nbest_destroy", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        internal static extern void lindera_nbest_destroy(LinderaNBestResultHandle* handle);
+
 
     }
 
@@ -154,6 +223,14 @@ namespace LinderaUnityBinding
         ///  Token details (null-terminated UTF-8, comma-separated)
         /// </summary>
         public byte* details;
+    }
+
+    /// <summary>
+    ///  N-Best result containing multiple segmentation paths (FFI)
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe partial struct LinderaNBestResultHandle
+    {
     }
 
 

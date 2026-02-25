@@ -85,6 +85,79 @@ namespace LinderaUnityBinding
         }
 
         /// <summary>
+        /// N-Bestトークナイズを実行
+        /// </summary>
+        /// <param name="handle">トークナイザーハンドル</param>
+        /// <param name="text">UTF-8エンコードされたテキスト</param>
+        /// <param name="text_len">テキストのバイト長</param>
+        /// <param name="n">取得するパス数</param>
+        /// <param name="deduplicate">重複排除するか</param>
+        /// <param name="costThreshold">コスト閾値（nullの場合は閾値なし）</param>
+        /// <returns>N-Best結果ハンドル（失敗時はIntPtr.Zero）</returns>
+        public static IntPtr lindera_tokenize_nbest(IntPtr handle, byte* text, int text_len, int n, bool deduplicate, long? costThreshold)
+        {
+            byte dedup = (byte)(deduplicate ? 1 : 0);
+            byte hasThreshold = (byte)(costThreshold.HasValue ? 1 : 0);
+            long threshold = costThreshold ?? 0;
+            var ptr = NativeMethodsGenerated.lindera_tokenize_nbest(
+                (LinderaTokenizerHandle*)handle, text, text_len, n, dedup, hasThreshold, threshold);
+            return (IntPtr)ptr;
+        }
+
+        /// <summary>
+        /// N-Best結果のパス数を取得
+        /// </summary>
+        /// <param name="handle">N-Best結果ハンドル</param>
+        /// <returns>パス数（エラー時は-1）</returns>
+        public static int lindera_nbest_path_count(IntPtr handle)
+        {
+            return NativeMethodsGenerated.lindera_nbest_path_count((LinderaNBestResultHandle*)handle);
+        }
+
+        /// <summary>
+        /// N-Best結果の指定パスのトークン数を取得
+        /// </summary>
+        /// <param name="handle">N-Best結果ハンドル</param>
+        /// <param name="pathIndex">パスインデックス</param>
+        /// <returns>トークン数（エラー時は-1）</returns>
+        public static int lindera_nbest_get_path_token_count(IntPtr handle, int pathIndex)
+        {
+            return NativeMethodsGenerated.lindera_nbest_get_path_token_count((LinderaNBestResultHandle*)handle, pathIndex);
+        }
+
+        /// <summary>
+        /// N-Best結果の指定パス・トークンインデックスのトークンを取得
+        /// </summary>
+        /// <param name="handle">N-Best結果ハンドル</param>
+        /// <param name="pathIndex">パスインデックス</param>
+        /// <param name="tokenIndex">トークンインデックス</param>
+        /// <returns>トークンデータへのポインタ（失敗時はnull）</returns>
+        internal static TokenData* lindera_nbest_get_path_token(IntPtr handle, int pathIndex, int tokenIndex)
+        {
+            return NativeMethodsGenerated.lindera_nbest_get_path_token((LinderaNBestResultHandle*)handle, pathIndex, tokenIndex);
+        }
+
+        /// <summary>
+        /// N-Best結果の指定パスのコストを取得
+        /// </summary>
+        /// <param name="handle">N-Best結果ハンドル</param>
+        /// <param name="pathIndex">パスインデックス</param>
+        /// <returns>パスのコスト（エラー時は0）</returns>
+        public static long lindera_nbest_get_path_cost(IntPtr handle, int pathIndex)
+        {
+            return NativeMethodsGenerated.lindera_nbest_get_path_cost((LinderaNBestResultHandle*)handle, pathIndex);
+        }
+
+        /// <summary>
+        /// N-Best結果を破棄
+        /// </summary>
+        /// <param name="handle">N-Best結果ハンドル</param>
+        public static void lindera_nbest_destroy(IntPtr handle)
+        {
+            NativeMethodsGenerated.lindera_nbest_destroy((LinderaNBestResultHandle*)handle);
+        }
+
+        /// <summary>
         /// 文字列の最大長（バッファオーバーラン防止用）
         /// </summary>
         private const int MaxStringLength = 1024 * 1024; // 1MB

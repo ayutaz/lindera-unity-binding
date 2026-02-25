@@ -9,6 +9,7 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 ## 機能
 
 - 日本語テキストのトークナイズ（形態素解析）
+- **N-Best形態素解析** — 複数の解析候補をコスト順に取得
 - IPADIC辞書による読み仮名（ふりがな）取得
 - 品詞タグ付け
 - マルチプラットフォーム対応（Windows, macOS, Linux, iOS, Android, **WebGL**）
@@ -85,6 +86,39 @@ async UniTaskVoid TokenizeAsync()
 }
 ```
 
+### N-Best形態素解析
+
+複数の解析候補をコスト順に取得できます。
+
+```csharp
+using LinderaUnityBinding;
+
+using var tokenizer = new LinderaTokenizer();
+
+// 上位5件の解析候補を取得
+var result = tokenizer.TokenizeNBest("東京都", n: 5);
+
+foreach (var path in result.Paths)
+{
+    Debug.Log($"コスト: {path.Cost}");
+    foreach (var token in path.Tokens)
+    {
+        Debug.Log($"  {token.Surface} ({token.PartOfSpeech})");
+    }
+}
+```
+
+#### パラメータ
+
+| パラメータ | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| `text` | `string` | — | 解析対象テキスト |
+| `n` | `int` | — | 取得する解析パス数 |
+| `deduplicate` | `bool` | `true` | 同一境界の結果を重複排除 |
+| `costThreshold` | `long?` | `null` | コスト閾値（ベストからの差分上限） |
+
+> **注意:** WebGLプラットフォームではN-Best APIは現在未対応です（`NotSupportedException` がスローされます）。
+
 ## WebGL対応
 
 WebGLプラットフォームでは、lindera-wasm（公式WASMビルド）を使用して形態素解析を行います。
@@ -131,6 +165,7 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 ## Features
 
 - Japanese text tokenization
+- **N-Best tokenization** — retrieve multiple analysis candidates ranked by cost
 - Reading (furigana) extraction from IPADIC dictionary
 - Part-of-speech tagging
 - Multi-platform support (Windows, macOS, Linux, iOS, Android, **WebGL**)
@@ -189,6 +224,29 @@ foreach (var token in tokens)
     Debug.Log($"{token.Surface} - {token.Reading} ({token.PartOfSpeech})");
 }
 ```
+
+### N-Best Tokenization
+
+Retrieve multiple analysis candidates ranked by Viterbi cost.
+
+```csharp
+using LinderaUnityBinding;
+
+using var tokenizer = new LinderaTokenizer();
+
+var result = tokenizer.TokenizeNBest("東京都", n: 5);
+
+foreach (var path in result.Paths)
+{
+    Debug.Log($"Cost: {path.Cost}");
+    foreach (var token in path.Tokens)
+    {
+        Debug.Log($"  {token.Surface} ({token.PartOfSpeech})");
+    }
+}
+```
+
+> **Note:** N-Best API is not yet supported on WebGL (`NotSupportedException` will be thrown).
 
 ## WebGL Support
 

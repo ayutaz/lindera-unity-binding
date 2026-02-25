@@ -157,6 +157,78 @@ namespace LinderaUnityBinding
         }
 
         /// <summary>
+        /// テキストをN-Best形態素解析する
+        /// </summary>
+        /// <param name="text">解析対象のテキスト</param>
+        /// <param name="n">取得する解析パス数</param>
+        /// <param name="deduplicate">同一境界の結果を重複排除するか</param>
+        /// <param name="costThreshold">コスト閾値（ベストコストからの差分上限）</param>
+        /// <returns>N-Best解析結果</returns>
+        /// <exception cref="ObjectDisposedException">トークナイザーが破棄されている場合</exception>
+        /// <exception cref="ArgumentOutOfRangeException">nが0以下の場合</exception>
+        /// <exception cref="LinderaException">解析に失敗した場合</exception>
+        public LinderaNBestResult TokenizeNBest(string text, int n, bool deduplicate = true, long? costThreshold = null)
+        {
+            ThrowIfDisposed();
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return new LinderaNBestResult(Array.Empty<LinderaNBestPath>());
+            }
+
+            if (n <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(n), "N must be greater than 0");
+            }
+
+            var utf8Bytes = Encoding.UTF8.GetBytes(text);
+            IntPtr nbestHandle;
+
+            unsafe
+            {
+                fixed (byte* textPtr = utf8Bytes)
+                {
+                    nbestHandle = NativeMethods.lindera_tokenize_nbest(_handle, textPtr, utf8Bytes.Length, n, deduplicate, costThreshold);
+                }
+            }
+
+            if (nbestHandle == IntPtr.Zero)
+            {
+                throw new LinderaException("Failed to tokenize text with N-Best");
+            }
+
+            try
+            {
+                return ExtractNBestResult(nbestHandle);
+            }
+            finally
+            {
+                NativeMethods.lindera_nbest_destroy(nbestHandle);
+            }
+        }
+
+        /// <summary>
+        /// テキストを非同期でN-Best形態素解析する
+        /// </summary>
+        /// <param name="text">解析対象のテキスト</param>
+        /// <param name="n">取得する解析パス数</param>
+        /// <param name="deduplicate">同一境界の結果を重複排除するか</param>
+        /// <param name="costThreshold">コスト閾値（ベストコストからの差分上限）</param>
+        /// <param name="cancellationToken">キャンセルトークン</param>
+        /// <returns>N-Best解析結果</returns>
+        public async UniTask<LinderaNBestResult> TokenizeNBestAsync(string text, int n, bool deduplicate = true, long? costThreshold = null, CancellationToken cancellationToken = default)
+        {
+            ThrowIfDisposed();
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return new LinderaNBestResult(Array.Empty<LinderaNBestPath>());
+            }
+
+            return await UniTask.RunOnThreadPool(() => TokenizeNBest(text, n, deduplicate, costThreshold), cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
         /// ネイティブトークン結果からマネージド配列にトークンを抽出
         /// </summary>
         /// <param name="tokensHandle">トークン結果のネイティブハンドル</param>
@@ -195,6 +267,53 @@ namespace LinderaUnityBinding
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// ネイティブN-Best結果からマネージド配列に結果を抽出
+        /// </summary>
+        /// <param name="nbestHandle">N-Best結果のネイティブハンドル</param>
+        /// <returns>抽出されたN-Best結果</returns>
+        private unsafe LinderaNBestResult ExtractNBestResult(IntPtr nbestHandle)
+        {
+            int pathCount = NativeMethods.lindera_nbest_path_count(nbestHandle);
+            if (pathCount <= 0)
+            {
+                return new LinderaNBestResult(Array.Empty<LinderaNBestPath>());
+            }
+
+            var paths = new LinderaNBestPath[pathCount];
+
+            for (int p = 0; p < pathCount; p++)
+            {
+                long cost = NativeMethods.lindera_nbest_get_path_cost(nbestHandle, p);
+                int tokenCount = NativeMethods.lindera_nbest_get_path_token_count(nbestHandle, p);
+
+                var tokens = new LinderaToken[tokenCount > 0 ? tokenCount : 0];
+                for (int t = 0; t < tokenCount; t++)
+                {
+                    var tokenPtr = NativeMethods.lindera_nbest_get_path_token(nbestHandle, p, t);
+                    if (tokenPtr == null) continue;
+
+                    var surface = NativeMethods.PtrToStringUTF8(tokenPtr->text);
+                    var detailsStr = NativeMethods.PtrToStringUTF8(tokenPtr->details);
+                    var details = string.IsNullOrEmpty(detailsStr)
+                        ? Array.Empty<string>()
+                        : detailsStr.Split(',');
+
+                    tokens[t] = new LinderaToken(
+                        surface,
+                        tokenPtr->byte_start,
+                        tokenPtr->byte_end,
+                        tokenPtr->position,
+                        details
+                    );
+                }
+
+                paths[p] = new LinderaNBestPath(tokens, cost);
+            }
+
+            return new LinderaNBestResult(paths);
         }
 
         /// <summary>
