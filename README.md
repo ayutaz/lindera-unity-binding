@@ -30,7 +30,7 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 ## 要件
 
 - Unity 2021.3 以降
-- [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 以降
+- [UniTask](https://github.com/Cysharp/UniTask) 2.5.10 以降（`package.json` の依存バージョン）
 
 ### サンプルシーンの要件
 
@@ -227,7 +227,7 @@ using (var tokenizer = new LinderaTokenizer())
 
 ### 前提条件
 
-- Rust 1.70 以降（`rustup` 推奨）
+- Rust 1.85 以降（`rustup` 推奨。Lindera 2.x は Rust 2024 edition のため 1.85 未満ではビルドできません）
 
 ### Windows (x64)
 

@@ -30,7 +30,7 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 ## Requirements
 
 - Unity 2021.3 or later
-- [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 or later
+- [UniTask](https://github.com/Cysharp/UniTask) 2.5.10 or later (the version `package.json` depends on)
 
 ### Sample Scene Requirements
 
@@ -227,7 +227,7 @@ Native libraries are automatically built by CI/CD when releasing. For local deve
 
 ### Prerequisites
 
-- Rust 1.70 or later (`rustup` recommended)
+- Rust 1.85 or later (`rustup` recommended; Lindera 2.x uses the Rust 2024 edition and does not build with older toolchains)
 
 ### Windows (x64)
 

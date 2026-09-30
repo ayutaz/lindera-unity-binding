@@ -26,7 +26,7 @@ LinderaをUnityで使用するための日本語形態素解析ライブラリ�
 ## 要件
 
 - Unity 2021.3 以降
-- [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 以降
+- [UniTask](https://github.com/Cysharp/UniTask) 2.5.10 以降
 
 ## 使い方
 
@@ -182,7 +182,7 @@ Japanese morphological analyzer for Unity using Lindera (Rust-based) via FFI bin
 ## Requirements
 
 - Unity 2021.3 or later
-- [UniTask](https://github.com/Cysharp/UniTask) 2.5.0 or later
+- [UniTask](https://github.com/Cysharp/UniTask) 2.5.10 or later
 
 ## Usage
 
